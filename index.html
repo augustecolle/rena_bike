@@ -209,6 +209,81 @@
 		    document.body.style.backgroundColor = "white";
 		}
 	
+<<<<<<< HEAD
+=======
+		//------------------------------------------------------------------
+		//------------------------------------------------------------------
+		//-----------------------------Google-------------------------------
+		// Note: This example requires that you consent to location sharing when
+		// prompted by your browser. If you see the error "The Geolocation service
+		// failed.", it means you probably did not give permission for the browser to
+		// locate you.
+		
+		function initMap() {
+		  var map = new google.maps.Map(document.getElementById('map'), {
+		    center: {lat: -34.397, lng: 150.644},
+		    zoom: 18
+		  });
+			new AutocompleteDirectionsHandler(map);
+            var infoWindow = new google.maps.InfoWindow({map: map});
+			var bikeLayer = new google.maps.BicyclingLayer();
+            bikeLayer.setMap(map);
+
+		  // Try HTML5 geolocation.
+		  if (navigator.geolocation) {
+		    navigator.geolocation.getCurrentPosition(function(position) {
+		      var pos = {
+		        lat: position.coords.latitude,
+		        lng: position.coords.longitude
+		      };
+		
+		      infoWindow.setPosition(pos);
+		      infoWindow.setContent('Current location');
+		      map.setCenter(pos);
+		    }, function() {
+		      handleLocationError(true, infoWindow, map.getCenter());
+		    });
+		  } else {
+		    // Browser doesn't support Geolocation
+		    handleLocationError(false, infoWindow, map.getCenter());
+		  }
+		}
+		
+		function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+		  infoWindow.setPosition(pos);
+		  infoWindow.setContent(browserHasGeolocation ?
+		                        'Error: The Geolocation service failed.' :
+		                        'Error: Your browser doesn\'t support geolocation.');
+		}
+
+		/**
+      * @constructor
+     */
+    function AutocompleteDirectionsHandler(map) {
+      this.map = map;
+      this.originPlaceId = null;
+      this.destinationPlaceId = null;
+      this.travelMode = 'WALKING';
+      var originInput = document.getElementById('origin-input');
+      var destinationInput = document.getElementById('destination-input');
+      var modeSelector = document.getElementById('mode-selector');
+      this.directionsService = new google.maps.DirectionsService;
+      this.directionsDisplay = new google.maps.DirectionsRenderer;
+      this.directionsDisplay.setMap(map);
+
+      var originAutocomplete = new google.maps.places.Autocomplete(
+          originInput, {placeIdOnly: true});
+      var destinationAutocomplete = new google.maps.places.Autocomplete(
+          destinationInput, {placeIdOnly: true});
+
+      this.setupPlaceChangedListener(originAutocomplete, 'ORIG');
+      this.setupPlaceChangedListener(destinationAutocomplete, 'DEST');
+
+      //this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
+      //this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinationInput);
+      //this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(modeSelector);
+    }
+>>>>>>> 4ec0aa626c2fb1aa0b22e43388c158dbdbc12645
 
 </script>
 
