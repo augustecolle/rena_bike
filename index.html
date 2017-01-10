@@ -3,11 +3,21 @@
 
 <head>
   <title>Rena's first app</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="Rena drive prediction">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<link rel="apple-touch-icon" href="./images/homescreen152.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="./images/homescreen152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="./images/homescreen180.png">
+	<link rel="apple-touch-icon" sizes="167x167" href="./images/homescreen167.png">
+	<link rel="apple-touch-startup-image" href="./images/homescreen.png">
 	<link rel="manifest" href="manifest/manifest.webmanifest">
-	<link rel="stylesheet" href="../css/w3.css">
-	<link rel="stylesheet" href="../css/maps.css">
+	<link rel="stylesheet" href="./css/maps.css">
+	<link rel="stylesheet" href="./css/w3.css">
+	<script src='https://api.mapbox.com/mapbox-gl-js/v0.30.0/mapbox-gl.js'></script>
+	<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.30.0/mapbox-gl.css' rel='stylesheet' />
 </head>
 
 <style>
@@ -15,7 +25,7 @@
 	  height: 100%;
 	  width: 0;
 	  position: fixed;
-	  z-index: 1;
+	  z-index: 101;
 	  top: 0;
 	  left: 0;
 	  background-color: #111;
@@ -123,7 +133,7 @@
 
 	<div class="w3-center w3-container w3-black" id="header">
 		<h1> 
-			<span class="w3-closenav w3-left" onclick="openNav()"><img src="favicon.svg" alt="HTML5 Icon" style="width:50px;height:50px;"></span> HEADER
+			<span class="w3-closenav w3-left" onclick="openNav()"><img src="./images/favicon.svg" alt="HTML5 Icon" style="width:50px;height:50px;"></span> HEADER
 		</h1>
 	</div>
 	<div id="main" style="">
@@ -137,7 +147,9 @@
 		<div id="map" style=""></div>
 	</div>
 
-	<script>
+</body>
+
+<script>
 
 	function autoResizeDiv()
   {
@@ -146,15 +158,49 @@
   window.onresize = autoResizeDiv;
   autoResizeDiv();
 
-	//------------------------------------------------------------------
-	//------------------------------------------------------------------
-	//-------------------------------W3---------------------------------
-	/* Set the width of the side navigation to 250px and the left margin of the page content to 250px and add a black background color to body */
-		function openNav() {
-		    document.getElementById("mySidenav").style.width = "250px";
-		    document.getElementById("main").style.marginLeft = "250px";
-		    document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
-		}
+	mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
+	var map = new mapboxgl.Map({
+	    container: 'map',
+	    style: 'mapbox://styles/mapbox/satellite-v9',
+	    zoom: 18,
+	    center: [3.7174, 51.0543]
+	});
+	
+	// Add pop up to current location
+	var markerHeight = 30, markerRadius = 10, linearOffset = 15;
+	var popupOffsets = {
+	 'top': [0, 0],
+	 'top-left': [0,0],
+	 'top-right': [0,0],
+	 'bottom': [0, -markerHeight],
+	 'bottom-left': [linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
+	 'bottom-right': [-linearOffset, (markerHeight - markerRadius + linearOffset) * -1],
+	 'left': [markerRadius, (markerHeight - markerRadius) * -1],
+	 'right': [-markerRadius, (markerHeight - markerRadius) * -1]
+	 };
+
+
+	// Try HTML5 geolocation.
+	var pos;
+	if (navigator.geolocation) {
+	  navigator.geolocation.getCurrentPosition(function(position) {
+	      pos = {
+	      lat: position.coords.latitude,
+	      lng: position.coords.longitude
+	    };
+		map.setCenter([pos.lng, pos.lat]);
+		var popup = new mapboxgl.Popup({offset:popupOffsets})
+		  .setLngLat([pos.lng, pos.lat])
+		  .setHTML("<h4>Current position</h4>")
+		  .addTo(map);
+		})
+	}
+
+	function openNav() {
+	  document.getElementById("mySidenav").style.width = "250px";
+	  document.getElementById("main").style.marginLeft = "250px";
+	  document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+	}
 		
 		/* Set the width of the side navigation to 0 and the left margin of the page content to 0, and the background color of body to white */
 		function closeNav() {
@@ -162,128 +208,8 @@
 		    document.getElementById("main").style.marginLeft = "0";
 		    document.body.style.backgroundColor = "white";
 		}
-
-		//------------------------------------------------------------------
-		//------------------------------------------------------------------
-		//------------------------------------------------------------------
 	
-		//------------------------------------------------------------------
-		//------------------------------------------------------------------
-		//-----------------------------Google-------------------------------
-		// Note: This example requires that you consent to location sharing when
-		// prompted by your browser. If you see the error "The Geolocation service
-		// failed.", it means you probably did not give permission for the browser to
-		// locate you.
-		
-		function initMap() {
-		  var map = new google.maps.Map(document.getElementById('map'), {
-		    center: {lat: -34.397, lng: 150.644},
-		    zoom: 18
-		  });
-			new AutocompleteDirectionsHandler(map);
-		  var infoWindow = new google.maps.InfoWindow({map: map});
-			var bikeLayer = new google.maps.BicyclingLayer();
-      bikeLayer.setMap(map);
 
-		  // Try HTML5 geolocation.
-		  if (navigator.geolocation) {
-		    navigator.geolocation.getCurrentPosition(function(position) {
-		      var pos = {
-		        lat: position.coords.latitude,
-		        lng: position.coords.longitude
-		      };
-		
-		      infoWindow.setPosition(pos);
-		      infoWindow.setContent('Current location');
-		      map.setCenter(pos);
-		    }, function() {
-		      handleLocationError(true, infoWindow, map.getCenter());
-		    });
-		  } else {
-		    // Browser doesn't support Geolocation
-		    handleLocationError(false, infoWindow, map.getCenter());
-		  }
-		}
-		
-		function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-		  infoWindow.setPosition(pos);
-		  infoWindow.setContent(browserHasGeolocation ?
-		                        'Error: The Geolocation service failed.' :
-		                        'Error: Your browser doesn\'t support geolocation.');
-		}
-
-		/**
-      * @constructor
-     */
-    function AutocompleteDirectionsHandler(map) {
-      this.map = map;
-      this.originPlaceId = null;
-      this.destinationPlaceId = null;
-      this.travelMode = 'WALKING';
-      var originInput = document.getElementById('origin-input');
-      var destinationInput = document.getElementById('destination-input');
-      var modeSelector = document.getElementById('mode-selector');
-      this.directionsService = new google.maps.DirectionsService;
-      this.directionsDisplay = new google.maps.DirectionsRenderer;
-      this.directionsDisplay.setMap(map);
-
-      var originAutocomplete = new google.maps.places.Autocomplete(
-          originInput, {placeIdOnly: true});
-      var destinationAutocomplete = new google.maps.places.Autocomplete(
-          destinationInput, {placeIdOnly: true});
-
-      this.setupPlaceChangedListener(originAutocomplete, 'ORIG');
-      this.setupPlaceChangedListener(destinationAutocomplete, 'DEST');
-
-      //this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(originInput);
-      //this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(destinationInput);
-      //this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(modeSelector);
-    }
-
-    AutocompleteDirectionsHandler.prototype.setupPlaceChangedListener = function(autocomplete, mode) {
-      var me = this;
-      autocomplete.bindTo('bounds', this.map);
-      autocomplete.addListener('place_changed', function() {
-        var place = autocomplete.getPlace();
-        if (!place.place_id) {
-          window.alert("Please select an option from the dropdown list.");
-          return;
-        }
-        if (mode === 'ORIG') {
-          me.originPlaceId = place.place_id;
-        } else {
-          me.destinationPlaceId = place.place_id;
-        }
-        me.route();
-      });
-
-    };
-
-    AutocompleteDirectionsHandler.prototype.route = function() {
-      if (!this.originPlaceId || !this.destinationPlaceId) {
-        return;
-      }
-      var me = this;
-
-      this.directionsService.route({
-        origin: {'placeId': this.originPlaceId},
-        destination: {'placeId': this.destinationPlaceId},
-        travelMode: this.travelMode
-      }, function(response, status) {
-        if (status === 'OK') {
-          me.directionsDisplay.setDirections(response);
-        } else {
-          window.alert('Directions request failed due to ' + status);
-        }
-      });
-    };
-
-	//------------------------------------------------------------------
-	//------------------------------------------------------------------
-	//------------------------------------------------------------------
-	</script>
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC5i4mxfddn4SyXbSAH2IVIZS_BH1NcAGo&libraries=places&callback=initMap" async defer></script>
-
-</body>
+</script>
 
 </html>
