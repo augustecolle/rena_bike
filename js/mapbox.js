@@ -1,7 +1,11 @@
+//GLOBAL VARIABLES
+var rider;
+var map;
+
 function mapbox(){
 	mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
 	
-	var map = new mapboxgl.Map({
+	map = new mapboxgl.Map({
 	  container: 'map',
 	  style: 'mapbox://styles/mapbox/outdoors-v9',
 	  zoom: 18,
@@ -26,16 +30,16 @@ function mapbox(){
 		//el.style.backgroundColor='red';
 		el.style.backgroundImage = "url('images/rider.svg')";
 		el.className = 'marker';
+		el.id = 'rider';
 		el.style.width = '45' + 'px';
 		el.style.height = '45' + 'px';
 		var marker = new mapboxgl.Marker(el);
 		marker.setLngLat([lng, lat]);
 		marker.addTo(map);
-		console.log(marker);
+		return marker;
 	}
 	
-	var positionIndicator
-	
+	var positionIndicator;
 	map.on('load', function () {
 		var nav = new mapboxgl.NavigationControl();
 		map.addControl(nav, 'bottom-left');
@@ -50,11 +54,12 @@ function mapbox(){
 		      lat: position.coords.latitude,
 		      lng: position.coords.longitude
 		    };
+			rider = labelCurrentPosition(position.coords.latitude, position.coords.longitude);
 			map.setCenter([pos.lng, pos.lat]);
 		  });
 			postionIndicator = navigator.geolocation.watchPosition(function(position) {
 				console.log("positionIndicator")
-				labelCurrentPosition(position.coords.latitude, position.coords.longitude);
+				rider.setLngLat([position.coords.longitude, position.coords.latitude]);
 				console.log(position.coords.latitude, position.coords.longitude);
 			});
 		}
@@ -71,5 +76,19 @@ function mapbox(){
 		var watchPosition = navigator.geolocation.watchPosition(function(position) {
 			trackOnMap(position.coords.latitude, position.coords.longitude);
 		});
+	});
+
+	//change rider figure to zoom level
+	map.on('zoomend', function() {
+		var currentZoom = map.getZoom();
+		var size = 45*currentZoom/18 + "px"
+		rider._element.style.backgroundSize = size + " " + size;
+		rider._element.style.width = size;
+		rider._element.style.height = size;
+		//if (currentZoom <= 13) {
+		//	rider._element.style.width = 0 + "px";
+		//} else {
+		//	rider._element.style.width = 45 + "px";
+		//}
 	});
 }	

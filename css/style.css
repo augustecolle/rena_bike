@@ -46,11 +46,11 @@ html {
   .sidenav a {font-size: 18px;}
 }
 
-.marker {
-  display: block;
-  border: none;
-  border-radius: 0%;
-  cursor: pointer;
-  padding: 0;
-}
+/*.marker {
+/*  display: block;
+/*  border: none;
+/*  border-radius: 0%;
+/*  cursor: pointer;
+/*  padding: 0;
+/*}
 
