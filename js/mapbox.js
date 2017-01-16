@@ -69,14 +69,19 @@ function mapbox(){
 	function trackOnMap(lat, lng) {
 		console.log("trackOnMap")
 		map.setCenter([lng, lat]);
-		map.setZoom(18);
 	}
 	directions.on('route', function(e) {
 		console.log(e.route); // Logs the current route shown in the interface.
 		var watchPosition = navigator.geolocation.watchPosition(function(position) {
 			trackOnMap(position.coords.latitude, position.coords.longitude);
-		});
+		}, {enableHighAccuracy: true} );
 	});
+
+	map.addControl(new mapboxgl.GeolocateControl({
+	    positionOptions: {
+	        enableHighAccuracy: true
+	    }
+	}), 'bottom-right');
 
 	//change rider figure to zoom level
 	map.on('zoomend', function() {
@@ -91,4 +96,7 @@ function mapbox(){
 		//	rider._element.style.width = 45 + "px";
 		//}
 	});
+//	document.getElementById("mapbox-directions-origin-input").children[0].children[1].value="TEST"
+//	mapbox-directions-destination-input
+//	mapbox-directions-origin-input
 }	
