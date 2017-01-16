@@ -4,13 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 samples = 200
-startPoint = "burgstraat gent"
-endPoint = "oudleikestraat ruiselede"
+startPoint = "brugge, belgium"
+endPoint = "gent, belgium"
 
 gmaps = googlemaps.Client(key="AIzaSyAWUyZr-YD30e0gDhqrJqML9VriCurSsJA")
 #Get directions and get the polyline
 directionResult = gmaps.directions(startPoint, endPoint)
-pp.pprint(directionResult)
+print directionResult
 encLine = str(directionResult[0]["overview_polyline"]["points"])
 #Get elevation points
 elevationResult = gmaps.elevation_along_path(path=encLine, samples=samples)
