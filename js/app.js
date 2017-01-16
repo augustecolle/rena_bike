@@ -1,5 +1,5 @@
 (function(){
-  var app = angular.module("renaBike", ["ngRoute"]);
+  var app = angular.module("renaBike", ["ngRoute", "ui.bootstrap"]);
   
   app.config(function($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix(''); //http://stackoverflow.com/questions/41214312/exclamation-mark-after-hash-in-angularjs-app/41551864#41551864
@@ -19,6 +19,7 @@
   
   app.controller("statCtrl", function($scope){
     closeNav();
+    
   });
   
 })();

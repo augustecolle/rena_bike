@@ -46,6 +46,10 @@ html {
   .sidenav a {font-size: 18px;}
 }
 
+.wrapper {
+  margin-top: 20px;
+}
+
 /*.marker {
 /*  display: block;
 /*  border: none;
