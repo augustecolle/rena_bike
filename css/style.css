@@ -1,3 +1,7 @@
+html {
+  height: 100%;
+}
+
 .sidenav {
   height: 100%;
   width: 0;
@@ -33,7 +37,7 @@
 }
 
 #main {
-	display: block;
+  display: block;
   transition: margin-left .5s;
 }
 
@@ -49,3 +53,4 @@
   cursor: pointer;
   padding: 0;
 }
+
