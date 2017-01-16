@@ -31,11 +31,23 @@ map.on('load', function () {
 	//	watchPosition: true
 	//	}));
 	////add geocoder
+	
+	//set center on current location with HTML5
+	var pos;
+	if (navigator.geolocation) {
+	  navigator.geolocation.getCurrentPosition(function(position) {
+				console.log("getting position")
+	      pos = {
+	      lat: position.coords.latitude,
+	      lng: position.coords.longitude
+	    };
+		map.setCenter([pos.lng, pos.lat]);
+	  });
+	}
 	map.addControl(directions);
 	});
 	directions.on('route', function(e) {
 	  console.log(e.route); // Logs the current route shown in the interface.
 	});
-
 
 
