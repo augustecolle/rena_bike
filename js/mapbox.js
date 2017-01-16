@@ -12,7 +12,6 @@ function mapbox(){
 	  center: [3.7174, 51.0543]
 	});
 		
-		
 	var directions = new MapboxDirections({
 		accessToken: mapboxgl.accessToken,
 	  unit: 'metric', // Use the metric system to display distances.
@@ -64,27 +63,17 @@ function mapbox(){
 			});
 		}
 		map.addControl(directions);
+		map.addControl(new mapboxgl.GeolocateControl({
+		  positionOptions: {
+		    enableHighAccuracy: true,
+				watchPosition: true
+		  }
+		}), 'bottom-right');
 	});
-	
-	function trackOnMap(lat, lng) {
-		console.log("trackOnMap")
-		//map.setCenter([lng, lat]);
-	}
 
 	directions.on('route', function(e) {
 		console.log(e.route); // Logs the current route shown in the interface.
-		//var watchPosition = navigator.geolocation.watchPosition(function(position) {
-		//	trackOnMap(position.coords.latitude, position.coords.longitude);
-		//}, function(e){}, {enableHighAccuracy: true} );
 	});
-
-	map.addControl(new mapboxgl.GeolocateControl({
-	    positionOptions: {
-	        enableHighAccuracy: true,
-					watchPosition: true
-	    }
-
-	}), 'bottom-right');
 
 	//change rider figure to zoom level
 	map.on('zoomend', function() {
@@ -95,6 +84,7 @@ function mapbox(){
 		rider._element.style.height = size;
 	});
 
+//  To edit the input boxes
 //	document.getElementById("mapbox-directions-origin-input").children[0].children[1].value="TEST"
 //	mapbox-directions-destination-input
 //	mapbox-directions-origin-input
