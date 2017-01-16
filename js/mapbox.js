@@ -68,19 +68,22 @@ function mapbox(){
 	
 	function trackOnMap(lat, lng) {
 		console.log("trackOnMap")
-		map.setCenter([lng, lat]);
+		//map.setCenter([lng, lat]);
 	}
+
 	directions.on('route', function(e) {
 		console.log(e.route); // Logs the current route shown in the interface.
-		var watchPosition = navigator.geolocation.watchPosition(function(position) {
-			trackOnMap(position.coords.latitude, position.coords.longitude);
-		}, {enableHighAccuracy: true} );
+		//var watchPosition = navigator.geolocation.watchPosition(function(position) {
+		//	trackOnMap(position.coords.latitude, position.coords.longitude);
+		//}, function(e){}, {enableHighAccuracy: true} );
 	});
 
 	map.addControl(new mapboxgl.GeolocateControl({
 	    positionOptions: {
-	        enableHighAccuracy: true
+	        enableHighAccuracy: true,
+					watchPosition: true
 	    }
+
 	}), 'bottom-right');
 
 	//change rider figure to zoom level
@@ -90,12 +93,8 @@ function mapbox(){
 		rider._element.style.backgroundSize = size + " " + size;
 		rider._element.style.width = size;
 		rider._element.style.height = size;
-		//if (currentZoom <= 13) {
-		//	rider._element.style.width = 0 + "px";
-		//} else {
-		//	rider._element.style.width = 45 + "px";
-		//}
 	});
+
 //	document.getElementById("mapbox-directions-origin-input").children[0].children[1].value="TEST"
 //	mapbox-directions-destination-input
 //	mapbox-directions-origin-input
