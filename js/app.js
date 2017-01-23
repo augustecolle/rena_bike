@@ -54,13 +54,14 @@ jsonTemp = {
     $scope.chart1Config = {
       chart: {
         type: 'line',
-        zoomType: 'xy'
+        zoomType: 'xy',
+        animation: false
       },
       xAxis: {
         categories: jsonTemp["position"],
         tickmarkPlacement: 'on',
         title: {
-         text: "Position [km]" 
+         text: "Distance [km]" 
         }
       },
       yAxis: {
@@ -71,13 +72,23 @@ jsonTemp = {
       series: jsonTemp["energy"],
       title: {
         text: "Energy usage"
+      },
+      tooltip: {
+        formatter: function(){
+          return "Distance: " +this.x + " km <br\> " + this.series.name + ": " + this.y + " Wh"
+        }
       }
     }
 
     $scope.clickTab = function(number){
       $scope.tabs = [false, false, false];
       $scope.tabs[number] = true;
-      //tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+      //highlight the selection
+      tablinks = document.getElementsByClassName("tablink");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" w3-dark-grey", "");
+      }
+      tablinks[number].className += (" w3-dark-grey");
     }
   });
 
