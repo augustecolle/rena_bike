@@ -50,6 +50,19 @@ html {
   margin-top: 20px;
 }
 
+.tab {
+  width: 100%;
+}
+
+.graph {
+  margin: 0 auto;
+  width: 80%;
+}
+
+.highchart {
+  width: 80%;
+}
+
 /*.marker {
 /*  display: block;
 /*  border: none;

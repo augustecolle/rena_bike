@@ -53,14 +53,24 @@ jsonTemp = {
 
     $scope.chart1Config = {
       chart: {
-        type: 'line'
+        type: 'line',
+        zoomType: 'xy'
       },
       xAxis: {
-        categories: jsonTemp["position"]
+        categories: jsonTemp["position"],
+        tickmarkPlacement: 'on',
+        title: {
+         text: "Position [km]" 
+        }
+      },
+      yAxis: {
+        title: {
+          text: "Energy [Wh]"
+        }
       },
       series: jsonTemp["energy"],
       title: {
-        text: 'Hello'
+        text: "Energy usage"
       }
     }
 
