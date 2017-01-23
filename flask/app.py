@@ -1,13 +1,59 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 import ssl
+import pyowm
+
 app = Flask(__name__)
 api = Api(app)
 
 class Weather(Resource):
-    def get(self):
-        return "TEST"
+    def __init__(self):
+        self.owm = pyowm.OWM('aab29414b85baab539aeac7451de4b45')
+        self.lat = 0
 
+    def get(self, lat):
+        self.lat = lat
+        fc = self.get_detailed_forecast_lat_long(3.0, 52.4)
+        return fc
+
+
+    def get_weather_lat_long(self, latitude, longitude, numstations = 1):
+        '''returns the pyown weather object(s) in a list'''
+        obs_list = self.owm.weather_around_coords(latitude, longitude, limit = numstations)
+        weather_obj_list = []
+        for obs in obs_list:
+            loc = obs.get_location()
+            print(loc)
+            weather_obj_list.append(obs.get_weather())
+        return weather_obj_list
+
+
+    def get_winddata_lat_long(self, latitude, longitude, numstations = 1):
+        '''Gets wind data for given latitude and longitude. Numstations defaults to 1, if more than 1 station is asked (and if more stations are available) a list of dictionaries will be returned, each containing the weather data from the station.'''
+        print(latitude)
+        print(longitude)
+        weather_list = get_weather_lat_long(float(latitude), float(longitude), numstations)
+        list_wind_data = []
+        for weather in weather_list:
+            list_wind_data.append(weather.get_wind())
+        return list_wind_data
+
+
+    def get_forecast_lat_long(self, latitude, longitude, numdays=None):
+        '''returns forecast object given lat, long and numdays'''
+        if (numdays == None): numdays = 1
+        fc = self.owm.daily_forecast_at_coords(float(latitude), float(longitude), limit = numdays)
+        return fc.get_forecast()
+
+
+    def get_detailed_forecast_lat_long(self, latitude, longitude):
+        '''returns detailed 3 hourly forecast in a range of 5 days for given coords'''
+        fc = self.owm.three_hours_forecast_at_coords(float(latitude), float(longitude))
+        f = fc.get_forecast()
+        wStr = ""
+        for weather in f:
+            wStr = wStr + (weather.get_reference_time('iso') + "\t" + weather.get_detailed_status() + "\n")
+        return wStr
 
 api.add_resource(Weather, '/Weather')
 
