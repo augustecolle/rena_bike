@@ -73,13 +73,11 @@ jsonTemp = {
 
   app.controller("weatherCtrl", function($scope, $http){
     closeNav();
-    $scope.getData = function(){
-      console.log("JAAAAA");
-      $http.get("https://"+location.hostname+":5000/Weather")
-        .success(function(response) {
+    $scope.response = "Eerst";
+    $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", 5)
+        .then(function(response) {
           console.log(response);
-          $scope.response = response;
-      });
-    }
+          $scope.response = response.data;
+    });
   });
 })();
