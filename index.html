@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="renaBike">
+
+  <head>
+    <title>Rena's first app</title>
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Rena drive prediction">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="./images/homescreen152.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./images/homescreen152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./images/homescreen180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="./images/homescreen167.png">
+    <link rel="apple-touch-startup-image" href="./images/homescreen.png">
+    
+    
+    <link rel="stylesheet" href="./css/w3.css">
+    <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="./css/style.css">
+
+ 	<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.31.0/mapbox-gl.css' rel='stylesheet' />
+	<link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.3/mapbox-gl-directions.css' type='text/css' />
+    <link rel="manifest" href="manifest/manifest.webmanifest"> <link rel="stylesheet" href="./css/maps.css">
+  </head>
+
+  <body id="main">
+    <div id="mySidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <a href="#"> Map </a>
+      <a href="#statistics"> Statistics </a>
+      <a href="#dashboard"> Dashboard </a>
+      <a href="#weather"> Weather </a>
+    </div>
+    <div class="w3-center w3-container w3-black" id="header">
+      <h1> 
+        <span class="w3-closenav w3-left" onclick="openNav()"><img src="./images/favicon.svg" alt="HTML5 Icon" style="width:50px;height:50px;"></span> HEADER
+      </h1>
+    </div>
+    <ng-view></ng-view>
+  </body>
+  
+  <script type="text/javascript" src='https://api.mapbox.com/mapbox-gl-js/v0.30.0/mapbox-gl.js'></script>
+  <script type="text/javascript" src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v3.0.3/mapbox-gl-directions.js'></script>
+  <script type="text/javascript" src='js/main.js' ></script>
+  <script type="text/javascript" src='js/mapbox.js' ></script>
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script> 
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-route.js"></script>
+  <!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-touch.js"></script>
+  <script type="text/javascript" src="js/angular-ui-bootstrap.js"></script>-->
+  <script type="text/javascript" src='js/app.js'></script>
+  
+</html>
+
