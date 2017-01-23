@@ -1,9 +1,12 @@
 //GLOBAL VARIABLES
-var rider;
-var map;
+//var rider;
+//var map;
 
 function mapbox(){
 	mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
+    console.log("TEST"); 
+    //var rider; 
+    //var map;
 	
 	map = new mapboxgl.Map({
 	  container: 'map',
@@ -39,29 +42,42 @@ function mapbox(){
 	}
 	
 	var positionIndicator;
+    var rider;
 	map.on('load', function () {
 		var nav = new mapboxgl.NavigationControl();
 		map.addControl(nav, 'bottom-left');
 		console.log("onload function")
 		//set center on current location with HTML5
 		var pos;
-	
 		if (navigator.geolocation) {
+          console.log("navigator.geolocation")
+          
 		  navigator.geolocation.getCurrentPosition(function(position) {
-				console.log("getting position")
+		    console.log("getting position")
 		  	pos = {
 		      lat: position.coords.latitude,
 		      lng: position.coords.longitude
 		    };
 			rider = labelCurrentPosition(position.coords.latitude, position.coords.longitude);
+            console.log("rider gemaakt");
 			map.setCenter([pos.lng, pos.lat]);
-		  });
-			postionIndicator = navigator.geolocation.watchPosition(function(position) {
-				console.log("positionIndicator")
-				rider.setLngLat([position.coords.longitude, position.coords.latitude]);
-				console.log(position.coords.latitude, position.coords.longitude);
-			});
-		}
+            startPositionWatch();
+		  }, function(error){
+            alert("Error loading position: " + error);
+          }, {timeout:10000});
+          
+		  startPositionWatch = function(){
+            postionIndicator = navigator.geolocation.watchPosition(function(position) {
+		      console.log("positionIndicator")
+		      rider.setLngLat([position.coords.longitude, position.coords.latitude]);
+              console.log(position.coords.latitude, position.coords.longitude);
+		    }, function(error){
+              alert("Error loading position: " + error);
+            }, {timeout:10000});
+          }
+		} else {
+          alert("No geolocation supported");
+        }
 		map.addControl(directions);
 		map.addControl(new mapboxgl.GeolocateControl({
 		  positionOptions: {

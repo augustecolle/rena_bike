@@ -33,7 +33,7 @@
     $http.get("http://"+location.hostname+":5000/Weather")
       .then(function(response) {
         console.log(response);
-      }
+      });
     }
   });
   
