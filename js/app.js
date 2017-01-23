@@ -7,7 +7,7 @@
     .when("/", {templateUrl: "map.html", controller: "mapCtrl"})
     .when("/statistics", {templateUrl: "statistics.html", controller: "statCtrl"});
     //.when("/dashboard", {templateUrl: "statistics.html", controller: "statCtrl"});
-    //.when("/weather", {templateUrl: "statistics.html", controller: "statCtrl"});
+    .when("/weather", {templateUrl: "wheater.html", controller: "weatherCtrl"});
     //.otherwise({redirectTo: "/map"});    
   });
   
@@ -19,7 +19,16 @@
   
   app.controller("statCtrl", function($scope){
     closeNav();
+    $scope.tabs = [true, false, false];
     
+    $scope.clickTab = function(number){
+      $scope.tabs = [false, false, false];
+      $scope.tabs[number] = true;
+      //tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+    }
+  });
+
+  app.controller("weatherCtrl", function($scope){
   });
   
 })();
