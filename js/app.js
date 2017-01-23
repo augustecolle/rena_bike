@@ -28,7 +28,13 @@
     }
   });
 
-  app.controller("weatherCtrl", function($scope){
+  app.controller("weatherCtrl", function($scope, $http){
+    $scope.getData = function(){
+    $http.get("http://"+location.hostname+":5000/Weather")
+      .then(function(response) {
+        console.log(response);
+      }
+    }
   });
   
 })();
