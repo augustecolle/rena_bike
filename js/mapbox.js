@@ -5,8 +5,6 @@
 function mapbox(){
 	mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
     console.log("TEST"); 
-    //var rider; 
-    //var map;
 	
 	map = new mapboxgl.Map({
 	  container: 'map',
