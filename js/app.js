@@ -5,9 +5,9 @@
     $locationProvider.hashPrefix(''); //http://stackoverflow.com/questions/41214312/exclamation-mark-after-hash-in-angularjs-app/41551864#41551864
     $routeProvider
     .when("/", {templateUrl: "map.html", controller: "mapCtrl"})
-    .when("/statistics", {templateUrl: "statistics.html", controller: "statCtrl"});
+    .when("/statistics", {templateUrl: "statistics.html", controller: "statCtrl"})
     //.when("/dashboard", {templateUrl: "statistics.html", controller: "statCtrl"});
-    .when("/weather", {templateUrl: "wheater.html", controller: "weatherCtrl"});
+    .when("/weather", {templateUrl: "weather.html", controller: "weatherCtrl"});
     //.otherwise({redirectTo: "/map"});    
   });
   
