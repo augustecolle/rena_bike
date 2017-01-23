@@ -30,10 +30,12 @@
 
   app.controller("weatherCtrl", function($scope, $http){
     $scope.getData = function(){
-    $http.get("http://"+location.hostname+":5000/Weather")
-      .then(function(response) {
-        console.log(response);
-      }
+      console.log("JAAAAA");
+      $http.get("https://"+location.hostname+":5000/Weather")
+        .success(function(response) {
+          console.log(response);
+          $scope.response = response;
+      });
     }
   });
   

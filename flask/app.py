@@ -1,5 +1,6 @@
-from flask import Flask
-
+from flask import Flask, request
+from flask_restful import Resource, Api
+import ssl
 app = Flask(__name__)
 api = Api(app)
 
@@ -17,8 +18,7 @@ def option_autoreply():
 
     if request.method == 'OPTIONS':
         resp = app.make_default_options_response()
-
-    headers = None
+        headers = None
         if 'ACCESS_CONTROL_REQUEST_HEADERS' in request.headers:
             headers = request.headers['ACCESS_CONTROL_REQUEST_HEADERS']
         h = resp.headers 
@@ -46,6 +46,7 @@ def set_allow_origin(resp):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000, threaded=True)
+    context = ('/etc/apache2/ssl/apache.crt', '/etc/apache2/ssl/apache.key')
+    app.run(debug=False, host="0.0.0.0", ssl_context=context, port=5000, threaded=True)
 
 
