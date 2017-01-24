@@ -31,8 +31,15 @@ jsonTemp = {
 
 (function(){
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
-    .run(function($rootScope){
+    .run(function($rootScope, $geolocation){
       $rootScope.myPosition = {};
+      //$geolocation.watchPosition({
+      //  timeout: 60000,
+      //  maximumAge: 250,
+      //  enableHighAccuracy: true
+      //});
+      //$rootScope.myPosition = $geolocation.position;
+      //console.log($rootScope.myPosition);
    });
 
   app.config(function($routeProvider, $locationProvider) {
@@ -44,19 +51,27 @@ jsonTemp = {
     //.otherwise({redirectTo: "/map"});    
   });
   
-  app.controller("mapCtrl", function($rootScope, $scope){
+  app.controller("mapCtrl", function($rootScope, $scope, $geolocation){
     closeNav();
     autoResizeDiv();
     mapbox();
+    //$geolocation.watchPosition({
+    //  timeout: 60000,
+    //  maximumAge: 250,
+    //  enableHighAccuracy: true
+    //});
+    //$rootScope.myPosition = $geolocation.position;
+    //console.log($rootScope.myPosition);
   });
   
   app.controller('geolocCtrl', ['$geolocation', '$scope', function($geolocation, $scope, $rootScope) {
-    $geolocation.getCurrentPosition({
-       timeout: 60000
-    }).then(function(position) {
-       $rootScope.myPosition = position;
-       console.log($rootScope.myPosition);
+    $geolocation.watchPosition({
+       timeout: 60000,
+       maximumAge: 250,
+       enableHighAccuracy: true
     });
+    $rootScope.myPosition = $geolocation.position;
+    console.log($rootScope.myPosition);
   }]);
 
   app.controller("statCtrl", function($scope){
@@ -118,11 +133,13 @@ jsonTemp = {
   app.controller("weatherCtrl", function($rootScope, $scope, $http){
     closeNav();
     $scope.response = "Eerst";
-    $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", {params: {'lat':12, 'long':52}})
+    $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", {params: $rootScope.myPosition})
         .then(function(response) {
           $scope.response = response.data;
+          console.log($rootScope.myPosition);
     }, function errorCallback(response){
       console.log("ERROR, did you initialize the flask server??");  
+      console.log($rootScope.myPosition);
     });
   });
 })();
