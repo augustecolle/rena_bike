@@ -30,8 +30,11 @@ jsonTemp = {
 };
 
 (function(){
-  var app = angular.module("renaBike", ["ngRoute", "highcharts-ng"]);
-  
+  var app = angular.module("renaBike", ["ngRoute", "highcharts-ng"])
+    .run(function($rootScope){
+      $rootScope.pos = {};
+   });
+
   app.config(function($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix(''); //http://stackoverflow.com/questions/41214312/exclamation-mark-after-hash-in-angularjs-app/41551864#41551864
     $routeProvider
@@ -41,10 +44,12 @@ jsonTemp = {
     //.otherwise({redirectTo: "/map"});    
   });
   
-  app.controller("mapCtrl", function($scope){
+  app.controller("mapCtrl", function($rootScope, $scope){
     closeNav();
     autoResizeDiv();
-    mapbox();
+    $rootScope.pos = mapbox();
+    console.log("JA")
+    console.log($rootScope.pos);
   });
   
   app.controller("statCtrl", function($scope){
@@ -53,24 +58,14 @@ jsonTemp = {
 
     $scope.chart1Config = {
       chart: {
-        type: 'line',
-        zoomType: 'xy'
+        type: 'line'
       },
       xAxis: {
-        categories: jsonTemp["position"],
-        tickmarkPlacement: 'on',
-        title: {
-         text: "Position [km]" 
-        }
-      },
-      yAxis: {
-        title: {
-          text: "Energy [Wh]"
-        }
+        categories: jsonTemp["position"]
       },
       series: jsonTemp["energy"],
       title: {
-        text: "Energy usage"
+        text: 'Hello'
       }
     }
 
@@ -81,12 +76,13 @@ jsonTemp = {
     }
   });
 
-  app.controller("weatherCtrl", function($scope, $http){
+  app.controller("weatherCtrl", function($rootScope, $scope, $http){
     closeNav();
     $scope.response = "Eerst";
-    $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", 5)
+    $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", {params: {'lat':12, 'long':52}})
         .then(function(response) {
           console.log(response);
+          console.log($rootScope.pos);
           $scope.response = response.data;
     });
   });

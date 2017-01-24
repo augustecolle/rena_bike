@@ -4,8 +4,8 @@
 
 function mapbox(){
 	mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
-    console.log("TEST"); 
 	
+  var pos;
 	map = new mapboxgl.Map({
 	  container: 'map',
 	  style: 'mapbox://styles/mapbox/outdoors-v9',
@@ -46,7 +46,6 @@ function mapbox(){
 		map.addControl(nav, 'bottom-left');
 		console.log("onload function")
 		//set center on current location with HTML5
-		var pos;
 		if (navigator.geolocation) {
           console.log("navigator.geolocation")
           
@@ -56,8 +55,9 @@ function mapbox(){
 		      lat: position.coords.latitude,
 		      lng: position.coords.longitude
 		    };
-			rider = labelCurrentPosition(position.coords.latitude, position.coords.longitude);
-            console.log("rider gemaakt");
+        console.log(pos);
+			  rider = labelCurrentPosition(position.coords.latitude, position.coords.longitude);
+        console.log("rider gemaakt");
 			map.setCenter([pos.lng, pos.lat]);
             startPositionWatch();
 		  }, function(error){
@@ -102,4 +102,5 @@ function mapbox(){
 //	document.getElementById("mapbox-directions-origin-input").children[0].children[1].value="TEST"
 //	mapbox-directions-destination-input
 //	mapbox-directions-origin-input
+  return position;
 }	

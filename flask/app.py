@@ -9,11 +9,13 @@ api = Api(app)
 class Weather(Resource):
     def __init__(self):
         self.owm = pyowm.OWM('aab29414b85baab539aeac7451de4b45')
-        self.lat = 0
+        self.lat = None
+        self.long = None
 
-    def get(self, lat):
-        self.lat = lat
-        fc = self.get_detailed_forecast_lat_long(3.0, 52.4)
+    def get(self):
+        self.lat = request.args.get('lat')
+        self.long = request.args.get('long')
+        fc = self.get_detailed_forecast_lat_long(self.lat, self.long)
         return fc
 
 
