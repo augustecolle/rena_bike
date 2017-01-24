@@ -59,22 +59,54 @@ jsonTemp = {
     $scope.chart1Config = {
       chart: {
         type: 'line'
+        zoomType: 'xy',
+        animation: false
       },
       xAxis: {
-        categories: jsonTemp["position"]
+        categories: jsonTemp["position"],
+        tickmarkPlacement: 'on',
+        title: {
+         text: "Distance [km]" 
+        }
+      },
+      yAxis: {
+        title: {
+          text: "Energy [Wh]"
+        }
       },
       series: jsonTemp["energy"],
       title: {
-        text: 'Hello'
+        text: "Energy usage"
+      },
+      tooltip: {
+        formatter: function(){
+          return "Distance: " +this.x + " km <br\> " + this.series.name + ": " + this.y + " Wh"
+        }
       }
     }
 
     $scope.clickTab = function(number){
       $scope.tabs = [false, false, false];
       $scope.tabs[number] = true;
-      //tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+      //highlight the selection
+      tablinks = document.getElementsByClassName("tablink");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" w3-dark-grey", "");
+      }
+      tablinks[number].className += (" w3-dark-grey");
     }
   });
+
+  $scope.clickTab = function(number){
+    $scope.tabs = [false, false, false];
+    $scope.tabs[number] = true;
+    //highlight the selection
+    tablinks = document.getElementsByClassName("tablink");
+    for (i = 0; i < tablinks.length; i++) {
+      tablinks[i].className = tablinks[i].className.replace(" w3-dark-grey", "");
+    }
+    tablinks[number].className += (" w3-dark-grey");
+  }
 
   app.controller("weatherCtrl", function($rootScope, $scope, $http){
     closeNav();
