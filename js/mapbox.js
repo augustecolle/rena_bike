@@ -25,7 +25,6 @@ function mapbox(){
 	});
 	
 	function labelCurrentPosition(lat, lng){
-		console.log("labelCurrentPosition");
 		var el = document.createElement('div');
 		//el.style.backgroundColor='red';
 		el.style.backgroundImage = "url('images/rider.svg')";
@@ -44,20 +43,15 @@ function mapbox(){
 	map.on('load', function () {
 		var nav = new mapboxgl.NavigationControl();
 		map.addControl(nav, 'bottom-left');
-		console.log("onload function")
 		//set center on current location with HTML5
 		if (navigator.geolocation) {
-          console.log("navigator.geolocation")
           
 		  navigator.geolocation.getCurrentPosition(function(position) {
-		    console.log("getting position")
 		  	pos = {
 		      lat: position.coords.latitude,
 		      lng: position.coords.longitude
 		    };
-        console.log(pos);
 			  rider = labelCurrentPosition(position.coords.latitude, position.coords.longitude);
-        console.log("rider gemaakt");
 			map.setCenter([pos.lng, pos.lat]);
             startPositionWatch();
 		  }, function(error){
@@ -66,9 +60,7 @@ function mapbox(){
           
 		  startPositionWatch = function(){
             postionIndicator = navigator.geolocation.watchPosition(function(position) {
-		      console.log("positionIndicator")
 		      rider.setLngLat([position.coords.longitude, position.coords.latitude]);
-              console.log(position.coords.latitude, position.coords.longitude);
 		    }, function(error){
               alert("Error loading position: " + error);
             }, {timeout:10000});

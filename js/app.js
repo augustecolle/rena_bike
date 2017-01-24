@@ -30,9 +30,9 @@ jsonTemp = {
 };
 
 (function(){
-  var app = angular.module("renaBike", ["ngRoute", "highcharts-ng"])
+  var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
     .run(function($rootScope){
-      $rootScope.pos = {};
+      $rootScope.myPosition = {};
    });
 
   app.config(function($routeProvider, $locationProvider) {
@@ -47,11 +47,18 @@ jsonTemp = {
   app.controller("mapCtrl", function($rootScope, $scope){
     closeNav();
     autoResizeDiv();
-    $rootScope.pos = mapbox();
-    console.log("JA")
-    console.log($rootScope.pos);
+    mapbox();
   });
   
+  app.controller('geolocCtrl', ['$geolocation', '$scope', function($geolocation, $scope, $rootScope) {
+    $geolocation.getCurrentPosition({
+       timeout: 60000
+    }).then(function(position) {
+       $rootScope.myPosition = position;
+       console.log($rootScope.myPosition);
+    });
+  }]);
+
   app.controller("statCtrl", function($scope){
     closeNav();
     $scope.tabs = [true, false, false];
@@ -113,8 +120,6 @@ jsonTemp = {
     $scope.response = "Eerst";
     $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", {params: {'lat':12, 'long':52}})
         .then(function(response) {
-          console.log(response);
-          console.log($rootScope.pos);
           $scope.response = response.data;
     }, function errorCallback(response){
       console.log("ERROR, did you initialize the flask server??");  
