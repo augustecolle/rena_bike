@@ -102,5 +102,4 @@ function mapbox(){
 //	document.getElementById("mapbox-directions-origin-input").children[0].children[1].value="TEST"
 //	mapbox-directions-destination-input
 //	mapbox-directions-origin-input
-  return position;
 }	

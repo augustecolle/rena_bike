@@ -58,7 +58,7 @@ jsonTemp = {
 
     $scope.chart1Config = {
       chart: {
-        type: 'line'
+        type: 'line',
         zoomType: 'xy',
         animation: false
       },
@@ -94,8 +94,7 @@ jsonTemp = {
         tablinks[i].className = tablinks[i].className.replace(" w3-dark-grey", "");
       }
       tablinks[number].className += (" w3-dark-grey");
-    }
-  });
+  }
 
   $scope.clickTab = function(number){
     $scope.tabs = [false, false, false];
@@ -107,6 +106,7 @@ jsonTemp = {
     }
     tablinks[number].className += (" w3-dark-grey");
   }
+  });
 
   app.controller("weatherCtrl", function($rootScope, $scope, $http){
     closeNav();
@@ -116,6 +116,8 @@ jsonTemp = {
           console.log(response);
           console.log($rootScope.pos);
           $scope.response = response.data;
+    }, function errorCallback(response){
+      console.log("ERROR, did you initialize the flask server??");  
     });
   });
 })();
