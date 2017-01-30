@@ -78,14 +78,14 @@ function mapbox($http){
 	});
 
 	directions.on('route', function(e) {
-    var parameter = JSON.stringify(e.route);
+    var parameter = e.route;
     url = "https://"+location.hostname+":5000/Trajectory"
     console.log(parameter)
     $http.post(url, parameter).
       then(function(data, status, headers, config) {
         // this callback will be called asynchronously
         // when the response is available
-        console.log(data);
+        console.log("rPi got your data");
       },
       function(data, status, headers, config) {
         // called asynchronously if an error occurs
