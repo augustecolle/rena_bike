@@ -1,23 +1,25 @@
-<div class="w3-container w3-panel">
-  <ul class="w3-navbar w3-light-grey">
-    <li><a href="" ng-click="clickTab(0)" class="tablink w3-dark-grey">Energy</a></li>
-    <li><a href="" ng-click="clickTab(1)" class="tablink">Tab2</a></li>
-    <li><a href="" ng-click="clickTab(2)" class="tablink">Tab3</a></li>
-  </ul>
-</div>
-
-<div class="w3-container">
-  <div class="w3-panel" >
-    <div id="tab1" class="tab" ng-show="tabs[0]" >
-      <div class="graph">
-        <highchart id="chart1" config="chart1Config"></highchart>
+<div id="statistics">
+  <div class="w3-container w3-panel">
+    <ul class="w3-navbar w3-light-grey">
+      <li><a href="" ng-click="clickTab(0)" class="tablink w3-dark-grey">Energy</a></li>
+      <li><a href="" ng-click="clickTab(1)" class="tablink">Tab2</a></li>
+      <li><a href="" ng-click="clickTab(2)" class="tablink">Tab3</a></li>
+    </ul>
+  </div>
+  
+  <div class="w3-container">
+    <div class="w3-panel" >
+      <div id="tab1" class="tab" ng-show="tabs[0]" >
+        <div class="graph">
+          <highchart id="chart1" config="chart1Config" class="highchart"></highchart>
+        </div>
       </div>
-    </div>
-    <div id="tab2" class="tab" ng-show="tabs[1]">
-      tab2
-    </div>
-    <div id="tab3" class="tab" ng-show="tabs[2]">
-      tab3
+      <div id="tab2" class="tab" ng-show="tabs[1]">
+        tab2
+      </div>
+      <div id="tab3" class="tab" ng-show="tabs[2]">
+        tab3
+      </div>
     </div>
   </div>
 </div>

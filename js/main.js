@@ -1,7 +1,15 @@
 window.onresize = autoResizeDiv;
 
 function autoResizeDiv(){
-  document.getElementById('map').style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
+  if (document.getElementById("map")){
+    document.getElementById("map").style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
+  } else if (document.getElementById("mapAng")) {
+    document.getElementById("mapAng").style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
+  } else if (document.getElementById("statistics")) {
+    document.getElementById('statistics').style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
+  } else {
+    console.log("nothing to resize");
+  }
 };
 
 function openNav() {
