@@ -18,7 +18,8 @@ class Weather(Resource):
         self.lat = request.args.get('lat')
         self.long = request.args.get('long')
         fc = self.wh.get_detailed_forecast_lat_long(self.lat, self.long)
-        return 0
+        print fc
+        return fc
 
 class Trajectory(Resource):
     from libraries import trajectory as tr
