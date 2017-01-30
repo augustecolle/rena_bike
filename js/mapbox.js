@@ -95,3 +95,4 @@ function mapbox(){
 //	mapbox-directions-destination-input
 //	mapbox-directions-origin-input
 }	
+

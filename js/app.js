@@ -46,15 +46,50 @@ jsonTemp = {
     $locationProvider.hashPrefix(''); //http://stackoverflow.com/questions/41214312/exclamation-mark-after-hash-in-angularjs-app/41551864#41551864
     $routeProvider
     .when("/", {templateUrl: "map.html", controller: "mapCtrl"})
+    .when("/map", {templateUrl: "mapangular.html", controller: "mapAngCtrl"})
     .when("/statistics", {templateUrl: "statistics.html", controller: "statCtrl"})
     .when("/weather", {templateUrl: "weather.html", controller: "weatherCtrl"});
     //.otherwise({redirectTo: "/map"});    
   });
+
+  app.directive('mapbox', [
+    function () {
+      return {
+        restrict: 'A',
+        replace: true,
+        scope: {
+        },
+        link: function ($scope, $element, $attributes) {
+          document.getElementById("mapAng").style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
+          mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
+          console.log($element[0]);
+          var map = new mapboxgl.Map({
+            container:$element[0],
+	          style: 'mapbox://styles/mapbox/outdoors-v9',
+	          zoom: 18,
+	          center: [3.7174, 51.0543]
+          });
+        }
+      };
+    }
+  ]);
   
+  app.controller("mapAngCtrl", function($rootScope, $scope, $geolocation){
+    closeNav();
+    autoResizeDiv();
+  });
+
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation){
     closeNav();
     autoResizeDiv();
     mapbox();
+    navigator.geolocation.getCurrentPosition(function(position) {
+		  	pos = {
+		      lat: position.coords.latitude,
+		      lng: position.coords.longitude
+		    };
+      console.log(pos);
+    });
     //$geolocation.watchPosition({
     //  timeout: 60000,
     //  maximumAge: 250,
