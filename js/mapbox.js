@@ -2,7 +2,7 @@
 //var rider;
 //var map;
 
-function mapbox(){
+function mapbox($http){
 	mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
 	
   var pos;
@@ -78,7 +78,20 @@ function mapbox(){
 	});
 
 	directions.on('route', function(e) {
-		console.log(e.route); // Logs the current route shown in the interface.
+    var parameter = JSON.stringify(e.route);
+    url = "https://"+location.hostname+":5000/Trajectory"
+    console.log(parameter)
+    $http.post(url, parameter).
+      then(function(data, status, headers, config) {
+        // this callback will be called asynchronously
+        // when the response is available
+        console.log(data);
+      },
+      function(data, status, headers, config) {
+        // called asynchronously if an error occurs
+        // or server returns response with an error status.
+      });
+		//console.log(e.route); // Logs the current route shown in the interface.
 	});
 
 	//change rider figure to zoom level

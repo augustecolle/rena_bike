@@ -26,9 +26,14 @@ class Trajectory(Resource):
         pass 
     def get(self):
         pass
+    def post(self):
+        print(request.form)
+        print(request.files)
+        print(request.get_json(force=True))
+        return 0, 201
 
 api.add_resource(Weather, '/Weather')
-api.add_resource(Weather, '/Trajectory')
+api.add_resource(Trajectory, '/Trajectory')
 
 #appble CORS (cross origin requests), from: http://coalkids.github.io/flask-cors.html
 @app.before_request

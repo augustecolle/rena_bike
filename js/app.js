@@ -79,10 +79,10 @@ jsonTemp = {
     autoResizeDiv();
   });
 
-  app.controller("mapCtrl", function($rootScope, $scope, $geolocation){
+  app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http){
     closeNav();
     autoResizeDiv();
-    mapbox();
+    mapbox($http);
     navigator.geolocation.getCurrentPosition(function(position) {
 		  	pos = {
 		      lat: position.coords.latitude,
