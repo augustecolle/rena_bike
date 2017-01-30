@@ -39,6 +39,7 @@ html {
 #main {
   display: block;
   transition: margin-left .5s;
+  z-index: 9999;
 }
 
 @media screen and (max-height: 450px) {
@@ -52,16 +53,20 @@ html {
 
 .tab {
   width: 100%;
+  background-color: red;
+  height: 100%;
 }
 
 .graph {
+  position: absolute;
   margin: 0 auto;
   width: 80%;
 }
 
-.highchart {
+/*.highchart {
+  position: absolute;
   width: 80%;
-}
+}*/
 
 /*.marker {
 /*  display: block;
