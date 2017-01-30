@@ -2,6 +2,10 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 import ssl
 import pyowm
+import json
+import re
+import mechanize
+
 
 app = Flask(__name__)
 api = Api(app)
@@ -24,14 +28,47 @@ class Weather(Resource):
 class Trajectory(Resource):
     from libraries import trajectory as tr
     def __init__(self):
-        pass 
+        self.data_raw = None
+        self.steps_raw = None
+        self.lats = []
+        self.longs = []
     def get(self):
         pass
     def post(self):
-        print(request.form)
-        print(request.files)
-        print(request.get_json(force=True))
-        return 0, 201
+        self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
+        self.data_raw = json.loads(self.data_raw)
+        #self.data_raw is now a dictionary from route object containing the keys [duration, distance, steps, geometry, summary]
+        self.lats = []
+        self.longs = []
+        for obj in self.data_raw['steps']:
+            print(str(obj['maneuver']['location']['coordinates'][0]) + "\t" + str(obj['maneuver']['location']['coordinates'][1]))
+            self.lats.append(obj['maneuver']['location']['coordinates'][1])
+            self.longs.append(obj['maneuver']['location']['coordinates'][0]) 
+        formdata = ''.join(str(self.lats[i]) + "\t" + str(self.longs[i]) + "\n" for i in range(len(self.lats)))
+        #self.getHeights()
+        return formdata, 201
+
+    def getHeights(self):
+        formdata = ''.join(str(self.lats[i]) + "\t" + str(self.longs[i]) + "\n" for i in range(len(self.lats)))
+        br = mechanize.Browser()
+        br.set_handle_robots(False)
+        br.addheaders = [('User-agent', 'Firefox')]
+        # Retrieve the Google home page, saving the response
+        br.open("http://www.gpsvisualizer.com/convert_input")
+        #br.open("https://www.google.be")
+        # Select the search box and search for 'foo'
+        br.select_form( 'convert_form' )
+        br.form[ 'data' ] = formdata
+        control = br.find_control(name="add_elevation", type="select")
+        #set dropdown menu to auto to include elevation
+        control.value = ["auto"]
+        # Get the search results
+        br.submit()
+        for i in br.links(text_regex='Click'):
+            print(i)
+            f = br.retrieve(i.absolute_url, filename = './data.txt')
+        print("Scraped the heights")
+
 
 api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
