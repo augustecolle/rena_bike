@@ -34,7 +34,6 @@
       <div id="mySidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <a href="#"> Map </a>
-        <a href="#map"> Map angular </a>
         <a href="#statistics"> Statistics </a>
         <a href="#dashboard"> Dashboard </a>
         <a href="#weather"> Weather </a>
@@ -45,7 +44,7 @@
           <span class="w3-closenav w3-left" onclick="openNav()"><img src="./images/favicon.svg" alt="HTML5 Icon" style="width:50px;height:50px;"></span> HEADER
         </h1>
       </div>
-      <ng-view></ng-view>
+      <ng-view ng-controller="rootCtrl"></ng-view>
   </body>
 
   <!-- load mapbox -->

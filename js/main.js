@@ -1,5 +1,7 @@
 window.onresize = autoResizeDiv;
 
+if(navigator.userAgent.indexOf("Firefox")<0) alert("Only Firefox is supported!");
+
 function autoResizeDiv(){
   if (document.getElementById("map")){
     document.getElementById("map").style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
