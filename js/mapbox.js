@@ -2,7 +2,7 @@
 //var rider;
 //var map;
 
-function mapbox($http, $rootScope){
+function mapbox($http, $rootScope, $sce){
   mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
 
   var pos;
@@ -92,8 +92,9 @@ function mapbox($http, $rootScope){
         console.log(path);
         url = "https://maps.googleapis.com/maps/api/elevation/json?locations=".concat(path).concat("&key=").concat(key);
         console.log(url)
-        $http.get(url).
+        $http.jsonp(url).
           then(function successCallback(response) {
+            console.log(temp);
             $rootScope.routeJSON = response;
           }, function errorCallback(response){
             console.log("ERROR in callback");
