@@ -31,16 +31,9 @@ jsonTemp = {
 
 (function(){
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
-    .run(function($rootScope, $geolocation){
+    /*.run(function($rootScope, $geolocation){
       $rootScope.myPosition = {};
-      //$geolocation.watchPosition({
-      //  timeout: 60000,
-      //  maximumAge: 250,
-      //  enableHighAccuracy: true
-      //});
-      //$rootScope.myPosition = $geolocation.position;
-      //console.log($rootScope.myPosition);
-   });
+   });*/
 
   app.config(function($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix(''); //http://stackoverflow.com/questions/41214312/exclamation-mark-after-hash-in-angularjs-app/41551864#41551864
@@ -52,7 +45,7 @@ jsonTemp = {
     .when("/weather", {templateUrl: "weather.html", controller: "weatherCtrl"});
     //.otherwise({redirectTo: "/map"});    
   });
-
+/*
   app.directive('mapbox', [
     function () {
       return {
@@ -73,18 +66,10 @@ jsonTemp = {
         }
       };
     }
-  ]);
+  ]);*/
 
   //app.controller("rootCtrl", ['$geolocation','$scope', function($geolocation, $scope, $http){
   app.controller("rootCtrl", function($geolocation, $scope, $rootScope, $http){
-    //eenmalig ophalen tot de watcher start
-    navigator.geolocation.getCurrentPosition(function(position) {
-      pos = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-      console.log(pos);
-    });
     //Geo watcher
     $geolocation.watchPosition({
       timeout: 60000,
