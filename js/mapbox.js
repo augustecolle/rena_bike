@@ -113,6 +113,9 @@ function mapbox($http, $rootScope, $sce){
           $http.post(url, param).
             then(function(data, status, headers, config){
               console.log("Success");
+              $rootScope.energies = JSON.parse(data.data);
+              console.log("ENERGIES");
+              console.log($rootScope.energies);
             }, function(data, status, headers, config) {
               console.log("Error");
             });

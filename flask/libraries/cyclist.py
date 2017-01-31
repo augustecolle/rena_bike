@@ -105,6 +105,7 @@ class cyclist(object):
         mid = [trajectory.latitudes[len(trajectory.distances)/2], trajectory.longitudes[len(trajectory.distances)/2]]
         self.coords = start
         self.wind = wh.get_winddata_lat_long(mid[0], mid[1])
+        print(self.wind)
         compassbearings = np.array(trajectory.get_compass_bearing())
         #print(head_wind)
         distances = trajectory.distances
@@ -124,11 +125,15 @@ class cyclist(object):
             E_rol = np.append(E_rol, self.get_Prol()*distances[i]/self.velocity*1.0/3600) 
             P_klim = np.append(P_klim, self.get_Pklim()) 
             E_klim = np.append(E_klim, self.get_Pklim()*distances[i]/self.velocity*1.0/3600) 
-        return {'Pwind' : P_wind,
-                'Prol'  : P_rol,
-                'Pklim' : P_klim,
-                'Ewind' : E_wind,
-                'Erol'  : E_rol,
-                'Eklim' : E_klim,
-                'Eacc'  : E_acc}
+        return {'position' : (np.cumsum(distances)/1000.0).tolist(),
+                'energy' : [
+                    {'name' : 'Pwind', 'data' : P_wind.tolist()},
+                    {'name' : 'Prol' , 'data' : P_rol.tolist()},
+                    {'name' : 'Pklim', 'data' : P_klim.tolist()},
+                    {'name' : 'Ewind', 'data' : (np.cumsum(E_wind)).tolist()},
+                    {'name' : 'Erol' , 'data' : (np.cumsum(E_rol)).tolist()},
+                    {'name' : 'Eklim', 'data' : (np.cumsum(E_klim)).tolist()},
+                    {'name' : 'Eacc' , 'data' : (np.cumsum(E_acc)).tolist()}],
+                'altitude' : trajectory.heights}
+
 

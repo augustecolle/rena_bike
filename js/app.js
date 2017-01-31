@@ -38,6 +38,7 @@ jsonTemp = {
     $rootScope.routeLats = [];
     $rootScope.routeLongs = [];
     $rootScope.routeHeights = [];
+    $rootScope.energies = {};
   });
 
   app.config(function($routeProvider, $locationProvider) {
@@ -97,8 +98,9 @@ jsonTemp = {
     mapbox($http, $rootScope, $sce);
   });
 
-  app.controller("statCtrl", function($scope){
+  app.controller("statCtrl", function($scope, $rootScope){
     closeNav();
+    console.log($rootScope.energies["position"]);
     $scope.tabs = [true, false, false];
 
     $scope.chart1Config = {
@@ -108,7 +110,7 @@ jsonTemp = {
         animation: false
       },
       xAxis: {
-        categories: jsonTemp["position"],
+        categories: $rootScope.energies["position"],
         tickmarkPlacement: 'on',
         title: {
          text: "Distance [km]" 
@@ -119,7 +121,7 @@ jsonTemp = {
           text: "Energy [Wh]"
         }
       },
-      series: jsonTemp["energy"],
+      series: $rootScope.energies["energy"],
       title: {
         text: "Energy usage"
       },
