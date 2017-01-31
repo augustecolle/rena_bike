@@ -43,7 +43,9 @@ class Trajectory(Resource):
             print(str(obj['maneuver']['location']['coordinates'][0]) + "\t" + str(obj['maneuver']['location']['coordinates'][1]))
             self.lats.append(obj['maneuver']['location']['coordinates'][1])
             self.longs.append(obj['maneuver']['location']['coordinates'][0]) 
-        formdata = ''.join(str(self.lats[i]) + "\t" + str(self.longs[i]) + "\n" for i in range(len(self.lats)))
+        formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
+        formdata = formdata[:-1] #remove trailing |
+        #formdata = [{"lat":self.lats[i], "lng":self.longs[i]} for i in range(len(self.lats))] #for google API
         #self.getHeights()
         return formdata, 201
 

@@ -33,6 +33,7 @@ jsonTemp = {
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
     .run(function($rootScope, $geolocation){
       $rootScope.myPosition = {};
+      $rootScope.routeJSON = {};
       //$geolocation.watchPosition({
       //  timeout: 60000,
       //  maximumAge: 250,
@@ -82,7 +83,7 @@ jsonTemp = {
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http){
     closeNav();
     autoResizeDiv();
-    mapbox($http);
+    mapbox($http, $rootScope);
     navigator.geolocation.getCurrentPosition(function(position) {
 		  	pos = {
 		      lat: position.coords.latitude,
