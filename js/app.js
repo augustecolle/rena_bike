@@ -32,6 +32,14 @@ jsonTemp = {
 (function(){
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
 
+  app.run(function($rootScope) {
+    $rootScope.latitude = 0;
+    $rootScope.longitude = 0;
+    $rootScope.routeLats = [];
+    $rootScope.routeLongs = [];
+    $rootScope.routeHeights = [];
+  });
+
   app.config(function($routeProvider, $locationProvider) {
     $locationProvider.hashPrefix(''); //http://stackoverflow.com/questions/41214312/exclamation-mark-after-hash-in-angularjs-app/41551864#41551864
     $routeProvider
@@ -41,6 +49,8 @@ jsonTemp = {
     .when("/statistics", {templateUrl: "statistics.html", controller: "statCtrl"})
     .when("/weather", {templateUrl: "weather.html", controller: "weatherCtrl"});
     //.otherwise({redirectTo: "/map"});    
+  }, function($sceProvider){
+    $sceProvider.enabled(false);
   });
 /*
   app.directive('mapbox', [

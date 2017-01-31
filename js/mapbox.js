@@ -88,20 +88,42 @@ function mapbox($http, $rootScope, $sce){
       then(function(data, status, headers, config) {
         // this callback will be called asynchronously
         // when the response is available
-        var key = "AIzaSyAvSqPeLkf4GVTiNrKaEl-S9Cb9FhCIX0Y"
-        console.log(data);
+        $rootScope.routeLats = [];
+        $rootScope.routeLongs = [];
+        for (var i = 0; i < data.data.length; i++){
+          $rootScope.routeLats.push(data.data[i].lat);
+          $rootScope.routeLongs.push(data.data[i].lng);
+        }
         path = data.data;
-        console.log(path);
-        url = "https://maps.googleapis.com/maps/api/elevation/json?locations=".concat(path).concat("&key=").concat(key);
-        console.log(url)
-        $http.jsonp(url).
-          then(function successCallback(response) {
-            console.log(temp);
-            $rootScope.routeJSON = response;
-          }, function errorCallback(response){
-            console.log("ERROR in callback");
-            console.log(response);
-          });
+        var elevator = new google.maps.ElevationService;
+        elevator.getElevationForLocations({
+            'locations': path
+          }, getElevations);
+        function getElevations(elevations, status){
+          $rootScope.routeHeights = [];
+          for (var i = 0; i < elevations.length; i++){
+            $rootScope.routeHeights.push(elevations[i].elevation);
+          }
+          console.log("HEIGHTS:");
+          console.log($rootScope.routeHeights);
+          url = "https://"+location.hostname+":5000/Energy"
+          var param = {"lats" : $rootScope.routeLats,
+                       "lngs" : $rootScope.routeLongs,
+                       "heights" : $rootScope.routeHeights};
+          $http.post(url, param).
+            then(function(data, status, headers, config){
+              console.log("Success");
+            }, function(data, status, headers, config) {
+              console.log("Error");
+            });
+        }
+         //console.log(url)
+        //$sce.trustAsResourceUrl(url);
+        //
+        //$http.jsonp(url, {jsonpCallbackParam:'callback'})
+        //    .then(function(data){
+        //        console.log(data.found);
+        //   });
         //var Nightmare = require('nightmare');       
         //var nightmare = Nightmare({ show: true });
         //var gpsv = new Nightmare({

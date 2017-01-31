@@ -32,8 +32,10 @@ class Trajectory(Resource):
         self.steps_raw = None
         self.lats = []
         self.longs = []
+
     def get(self):
         pass
+
     def post(self):
         self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         self.data_raw = json.loads(self.data_raw)
@@ -44,9 +46,9 @@ class Trajectory(Resource):
             print(str(obj['maneuver']['location']['coordinates'][0]) + "\t" + str(obj['maneuver']['location']['coordinates'][1]))
             self.lats.append(obj['maneuver']['location']['coordinates'][1])
             self.longs.append(obj['maneuver']['location']['coordinates'][0]) 
-        formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
-        formdata = formdata[:-1] #remove trailing |
-        #formdata = [{"lat":self.lats[i], "lng":self.longs[i]} for i in range(len(self.lats))] #for google API
+        #formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
+        #formdata = formdata[:-1] #remove trailing |
+        formdata = [{"lat":self.lats[i], "lng":self.longs[i]} for i in range(len(self.lats))] #for google API
         #self.getHeights()
         return formdata, 201
 
@@ -71,9 +73,20 @@ class Trajectory(Resource):
             f = br.retrieve(i.absolute_url, filename = './data.txt')
         print("Scraped the heights")
 
+class Energy(Resource):
+    from libraries import trajectory as tr
+    def __init__(self):
+        
+    def post(self):
+        #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
+        data_raw = request.get_json(force=True);
+        print(data_raw)
+        #print(self.data_raw)
+        return data_raw, 201
 
 api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
+api.add_resource(Energy, '/Energy')
 
 #appble CORS (cross origin requests), from: http://coalkids.github.io/flask-cors.html
 @app.before_request
