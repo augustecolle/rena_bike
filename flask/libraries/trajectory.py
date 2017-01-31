@@ -81,6 +81,21 @@ class traject(object):
         self.pretty_printing_lat_long()
         return 0
 
+    def get_distances(self):
+        start = tuple([self.latitudes[0], self.longitudes[0]])
+        i = 1
+        for x in zip(self.latitudes[1:], self.longitudes[1:]):
+            dist = vincenty(x, start).meters
+            if dist > 0:
+                self.distances.append(dist)
+            else:
+                self.distances.append(1e-9)
+                #self.distances.append(1e-9) #if we would end up somehow by having twice the same point (can't devide by zero)
+            start = x
+            i = i + 1
+        self.get_air_densities()
+        return 0
+
     def get_air_densities(self):
         '''using en.wikipedia.org/wiki/Density_of_air'''
         self.rho = []

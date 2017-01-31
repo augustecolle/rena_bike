@@ -62,11 +62,14 @@ class cyclist(object):
 
     def get_Pwind(self):
         if (self.wind == None):
-            start = self.get_coords()
+            start = self.coords
             self.wind = wh.get_winddata_lat_long(start[0], start[1])
+            print(self.wind)
             #get windspeed
-        v_wind = self.wind[0]['speed'] #already in m/s
-        head_wind_alpha = self.compassbearing - (self.wind[0]['deg'])
+        #rien v_wind = self.wind[0]['speed'] #already in m/s
+        v_wind = 3.5
+        #rien head_wind_alpha = self.compassbearing - (self.wind[0]['deg'])
+        head_wind_alpha = self.compassbearing - 90
         CdA = self.get_CdA() 
         rho = tr.get_air_density_at_height(self.height)
         P_wind = 0.5*rho*CdA*self.velocity*\

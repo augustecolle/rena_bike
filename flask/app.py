@@ -18,7 +18,6 @@ class Weather(Resource):
         self.long = None
 
     def get(self):
-        print(request.args)
         self.lat = request.args.get('lat')
         self.long = request.args.get('long')
         fc = self.wh.get_detailed_forecast_lat_long(self.lat, self.long)
@@ -74,15 +73,26 @@ class Trajectory(Resource):
         print("Scraped the heights")
 
 class Energy(Resource):
-    from libraries import trajectory as tr
     def __init__(self):
-        
+        from libraries import trajectory as tr
+        from libraries import cyclist as cl
+        self.tr = tr.traject()
+        self.cl = cl.cyclist()
+        self.energies = {}
+
     def post(self):
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         data_raw = request.get_json(force=True);
-        print(data_raw)
+        self.tr.heights = data_raw["heights"]
+        self.tr.longitudes = data_raw["lngs"]
+        self.tr.latitudes = data_raw["lats"]
+        self.tr.get_distances()
+        self.tr.get_compass_bearing()
+        self.tr.get_slopes()
+        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=20)
+        print(self.energies)
         #print(self.data_raw)
-        return data_raw, 201
+        return self.tr.distances, 201
 
 api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
