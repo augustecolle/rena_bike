@@ -53,16 +53,18 @@ function mapbox($http, $rootScope, $sce){
         };
         rider = labelCurrentPosition(position.coords.latitude, position.coords.longitude);
         map.setCenter([pos.lng, pos.lat]);
+        $rootScope.latitude = position.coords.latitude;
+        $rootScope.longitude = position.coords.longitude;
         startPositionWatch();
       }, function(error){
-        alert("Error loading position: " + error);
+        console.log("Error loading position: " + error);
       }, {timeout:10000});
 
       startPositionWatch = function(){
         postionIndicator = navigator.geolocation.watchPosition(function(position) {
           rider.setLngLat([position.coords.longitude, position.coords.latitude]);
         }, function(error){
-          alert("Error loading position: " + error);
+          console.log("Error loading position: " + error);
         }, {timeout:10000});
       }
     } else {
