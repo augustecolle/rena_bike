@@ -67,18 +67,7 @@ jsonTemp = {
 
   //app.controller("rootCtrl", ['$geolocation','$scope', function($geolocation, $scope, $http){
   app.controller("rootCtrl", function($geolocation, $scope, $rootScope, $http){
-    //Geo watcher
-    $geolocation.watchPosition({
-      timeout: 60000,
-      maximumAge: 250,
-      enableHighAccuracy: true
-    });
-    $rootScope.myPosition = $geolocation.position; // this object updates regularly, it has 'error' property which is a 'truthy' and also 'code' and 'message' property if an error occurs
-    /*//It has all the location data 
-    '$scope.myPosition.coords'
-    //It's truthy and gets defined when error occurs 
-    '$scope.myPosition.error'*/
-    
+    //mapbox($http, $rootScope);
     //Weahter
     apikey = "aab29414b85baab539aeac7451de4b45";
     //alert($scope.myPosition.coords)
@@ -91,41 +80,12 @@ jsonTemp = {
         alert("Weather isn't available")
       });
   });
-/*
-  app.controller("mapAngCtrl", function($rootScope, $scope, $geolocation){
-    closeNav();
-    autoResizeDiv();
-  });*/
 
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http){
     closeNav();
     autoResizeDiv();
     mapbox($http, $rootScope);
-    /*navigator.geolocation.getCurrentPosition(function(position) {
-		  	pos = {
-		      lat: position.coords.latitude,
-		      lng: position.coords.longitude
-		    };
-      console.log(pos);
-    });*/
-    //$geolocation.watchPosition({
-    //  timeout: 60000,
-    //  maximumAge: 250,
-    //  enableHighAccuracy: true
-    //});
-    //$rootScope.myPosition = $geolocation.position;
-    //console.log($rootScope.myPosition);
   });
-  /*
-  app.controller('geolocCtrl', ['$geolocation', '$scope', function($geolocation, $scope, $rootScope) {
-    $geolocation.watchPosition({
-       timeout: 60000,
-       maximumAge: 250,
-       enableHighAccuracy: true
-    });
-    $rootScope.myPosition = $geolocation.position;
-    console.log($rootScope.myPosition);
-  }]);*/
 
   app.controller("statCtrl", function($scope){
     closeNav();
