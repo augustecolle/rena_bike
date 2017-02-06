@@ -32,13 +32,20 @@ jsonTemp = {
 (function(){
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
 
-  app.run(function($rootScope) {
+  app.run(function($rootScope, $http, $sce) {
     $rootScope.latitude = 0;
     $rootScope.longitude = 0;
     $rootScope.routeLats = [];
     $rootScope.routeLongs = [];
     $rootScope.routeHeights = [];
     $rootScope.energies = {};
+    $rootScope.hidden = 0;
+    $rootScope.chartConfig1 = {}
+    autoResizeDiv($rootScope);
+    mapbox($http, $rootScope, $sce);
+    window.onresize = function(){
+      autoResizeDiv($rootScope);
+    }
   });
 
   app.config(function($routeProvider, $locationProvider) {
@@ -93,44 +100,16 @@ jsonTemp = {
   });
 
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http, $sce){
+    $rootScope.hidden = 0;
     closeNav();
-    autoResizeDiv();
-    mapbox($http, $rootScope, $sce);
+    autoResizeDiv($rootScope);
   });
 
   app.controller("statCtrl", function($scope, $rootScope){
     closeNav();
-    console.log($rootScope.energies["position"]);
+    $rootScope.hidden = 1;
+    autoResizeDiv($rootScope);
     $scope.tabs = [true, false, false];
-
-    $scope.chart1Config = {
-      chart: {
-        type: 'line',
-        zoomType: 'xy',
-        animation: false
-      },
-      xAxis: {
-        categories: $rootScope.energies["position"],
-        tickmarkPlacement: 'on',
-        title: {
-         text: "Distance [km]" 
-        }
-      },
-      yAxis: {
-        title: {
-          text: "Energy [Wh]"
-        }
-      },
-      series: $rootScope.energies["energy"],
-      title: {
-        text: "Energy usage"
-      },
-      tooltip: {
-        formatter: function(){
-          return "Distance: " +this.x + " km <br\> " + this.series.name + ": " + this.y + " Wh"
-        }
-      }
-    }
 
     $scope.clickTab = function(number){
       $scope.tabs = [false, false, false];
@@ -157,6 +136,7 @@ jsonTemp = {
 
   app.controller("weatherCtrl", function($rootScope, $scope, $http){
     closeNav();
+    $rootScope.hidden = 1;
     /*$scope.response = "Eerst";
           $scope.position = $rootScope.myPosition;
     $scope.getData = $http.get("https://"+location.hostname+":5000/Weather", {params: {'lat':51, 'long':3}})

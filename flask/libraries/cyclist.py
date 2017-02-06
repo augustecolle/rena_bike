@@ -133,7 +133,8 @@ class cyclist(object):
                     {'name' : 'Ewind', 'data' : (np.cumsum(E_wind)).tolist()},
                     {'name' : 'Erol' , 'data' : (np.cumsum(E_rol)).tolist()},
                     {'name' : 'Eklim', 'data' : (np.cumsum(E_klim)).tolist()},
-                    {'name' : 'Eacc' , 'data' : (np.cumsum(E_acc)).tolist()}],
+                    {'name' : 'Eacc' , 'data' : (np.cumsum(E_acc)).tolist()},
+                    {'name' : 'Etot' , 'data' : (np.cumsum(E_acc) + np.cumsum(E_wind) + np.cumsum(E_rol) + np.cumsum(E_klim)).tolist()}],
                 'altitude' : trajectory.heights}
 
 
