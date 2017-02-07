@@ -126,10 +126,13 @@ class cyclist(object):
             P_klim = np.append(P_klim, self.get_Pklim()) 
             E_klim = np.append(E_klim, self.get_Pklim()*distances[i]/self.velocity*1.0/3600) 
         return {'position' : (np.cumsum(distances)/1000.0).tolist(),
-                'energy' : [
+                'power' : [
                     {'name' : 'Pwind', 'data' : P_wind.tolist()},
                     {'name' : 'Prol' , 'data' : P_rol.tolist()},
                     {'name' : 'Pklim', 'data' : P_klim.tolist()},
+                    {'name' : 'Ptot', 'data' : (P_wind + P_rol + P_klim).tolist()}
+                    ],
+                'energy': [
                     {'name' : 'Ewind', 'data' : (np.cumsum(E_wind)).tolist()},
                     {'name' : 'Erol' , 'data' : (np.cumsum(E_rol)).tolist()},
                     {'name' : 'Eklim', 'data' : (np.cumsum(E_klim)).tolist()},

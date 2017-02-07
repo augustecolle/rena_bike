@@ -40,7 +40,7 @@ jsonTemp = {
     $rootScope.routeHeights = [];
     $rootScope.energies = {};
     $rootScope.hidden = 0;
-    $rootScope.chartConfig1 = {}
+    $rootScope.tabs = [false, false, false];
     autoResizeDiv($rootScope);
     mapbox($http, $rootScope, $sce);
     window.onresize = function(){
@@ -116,29 +116,22 @@ jsonTemp = {
   app.controller("statCtrl", function($scope, $rootScope){
     closeNav();
     $rootScope.hidden = 1;
-    autoResizeDiv($rootScope);
     $scope.tabs = [true, false, false];
+    $rootScope.tabs = [true, false, false];
+    autoResizeDiv($rootScope);
 
     $scope.clickTab = function(number){
-      $scope.tabs = [false, false, false];
-      $scope.tabs[number] = true;
-      //highlight the selection
-      tablinks = document.getElementsByClassName("tablink");
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" w3-dark-grey", "");
-      }
-      tablinks[number].className += (" w3-dark-grey");
-  }
-
-  $scope.clickTab = function(number){
     $scope.tabs = [false, false, false];
     $scope.tabs[number] = true;
+    $rootScope.tabs = [false, false, false];
+    $rootScope.tabs[number] = true;
     //highlight the selection
     tablinks = document.getElementsByClassName("tablink");
     for (i = 0; i < tablinks.length; i++) {
       tablinks[i].className = tablinks[i].className.replace(" w3-dark-grey", "");
     }
     tablinks[number].className += (" w3-dark-grey");
+    autoResizeDiv($rootScope);
   }
   });
 
