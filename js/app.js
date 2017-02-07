@@ -129,12 +129,12 @@ jsonTemp = {
 
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http, $sce){
     $rootScope.hidden = 0;
-    closeNav();
+    //closeNav();
     autoResizeDiv($rootScope);
   });
 
   app.controller("statCtrl", function($scope, $rootScope){
-    closeNav();
+    //closeNav();
     $rootScope.hidden = 1;
     $scope.tabs = [true, false, false, false];
     $rootScope.tabs = [true, false, false, false];
@@ -156,7 +156,7 @@ jsonTemp = {
   });
 
   app.controller("weatherCtrl", function($rootScope, $scope, $http){
-    closeNav();
+    //closeNav();
     $rootScope.hidden = 1;
     /*$scope.response = "Eerst";
           $scope.position = $rootScope.myPosition;
@@ -171,7 +171,20 @@ jsonTemp = {
   });
   
   app.controller("settingsCtrl", function($rootScope, $scope){
-    closeNav();
+    //closeNav();
     $rootScope.hidden = 1;
+    $scope.newProfile = false;
+    $scope.profileText = "New"
+    
+    $scope.addProfile = function(){
+      if(!$scope.newProfile){
+        $scope.newProfile = true;
+        $scope.profileText = "Hide"
+      } else {
+        $scope.newProfile = false;
+        $scope.profileText = "New"
+      }
+    };  
   });
+  
 })();

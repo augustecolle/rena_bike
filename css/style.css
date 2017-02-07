@@ -71,8 +71,20 @@ h1 .headerTitle {
   padding-top: 7px;
 }
 
-.wrapper {
-  margin: 40px 20px 20px 20px;
+#settingsForm {
+  width: 60%;
+  margin: 40px auto 20px auto;
+}
+
+.pushRight {
+  margin-left: 20px;
+}
+
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) { 
+  #settingsForm {
+    width: 90% ;
+}
 }
 
 /*.highchart {

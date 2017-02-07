@@ -36,14 +36,14 @@
   <body id="main" height="100%" width="100%">
       <div id="mySidenav" class="sidenav">
         <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <a href="#"> Map </a>
-        <a href="#statistics"> Statistics </a>
+        <a href="#" onclick="closeNav()"> Map </a>
+        <a href="#statistics" onclick="closeNav()"> Statistics </a>
         <!--<a href="#dashboard"> Dashboard </a>-->
-        <a href="#settings"> Settings </a>
+        <a href="#settings" onclick="closeNav()"> Settings </a>
       </div>
       <div class="w3-center w3-container w3-black" id="header">
         <h1> 
-          <span class="w3-closenav w3-left" onclick="openNav()"><img src="./images/favicon.svg" alt="HTML5 Icon" style="width:50px;height:50px;"></span> <div class="headerTitle">RENA eBike</div>
+          <span class="w3-closenav w3-left" onclick="openNav()"><img src="./images/favicon.svg" alt="HTML5 Icon" style="width:50px;height:50px;"></span> <div class="headerTitle">eBike RENA</div>
         </h1>
       </div>
       <ng-view ng-controller="rootCtrl"></ng-view>
