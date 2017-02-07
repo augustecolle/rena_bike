@@ -45,7 +45,7 @@ function mapbox($http, $rootScope, $sce){
     map.addControl(nav, 'bottom-left');
     //set center on current location with HTML5
     if (navigator.geolocation) {
-
+      
       navigator.geolocation.getCurrentPosition(function(position) {
         pos = {
           lat: position.coords.latitude,
@@ -55,7 +55,11 @@ function mapbox($http, $rootScope, $sce){
         map.setCenter([pos.lng, pos.lat]);
         $rootScope.latitude = position.coords.latitude;
         $rootScope.longitude = position.coords.longitude;
+        $rootScope.getWeather();
+        
         startPositionWatch();
+        //$rootScope.startWeatherWatch(1);
+        
       }, function(error){
         console.log("Error loading position: " + error);
       }, {timeout:10000});

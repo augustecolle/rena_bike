@@ -4,7 +4,7 @@ import ssl
 import pyowm
 import json
 import re
-import mechanize
+#import mechanize
 import socket
 
 app = Flask(__name__)

@@ -32,7 +32,7 @@ jsonTemp = {
 (function(){
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
 
-  app.run(function($rootScope, $http, $sce) {
+  app.run(function($rootScope, $http, $sce, $interval) {
     $rootScope.latitude = 0;
     $rootScope.longitude = 0;
     $rootScope.routeLats = [];
@@ -46,6 +46,25 @@ jsonTemp = {
     window.onresize = function(){
       autoResizeDiv($rootScope);
     }
+
+    $rootScope.getWeather = function() {
+      apikey = "2b26e3479da80130";
+      alert("weer ophalen")
+      $http({method: "GET", url: "https://api.wunderground.com/api/" + apikey + "/hourly10day/q/" + $rootScope.latitude + "," + $rootScope.longitude + ".json"})
+        .then(function successCallback(response) {
+          $rootScope.weather = response["data"];
+        }, function errorCallback(response) {
+          alert("Weather isn't available")
+      });
+    }
+    
+    $rootScope.startWeatherWatch = function(intervalTime) { //intervalTime in minutes
+      intervalTime = intervalTime * 60 * 1000;
+      $rootScope.weatherInterval = $interval(function() {
+        $rootScope.getWeather();
+      }, intervalTime);
+    };
+    
   });
 
   app.config(function($routeProvider, $locationProvider) {
@@ -85,18 +104,7 @@ jsonTemp = {
 
   //app.controller("rootCtrl", ['$geolocation','$scope', function($geolocation, $scope, $http){
   app.controller("rootCtrl", function($geolocation, $scope, $rootScope, $http){
-    //mapbox($http, $rootScope);
-    //Weahter
-    apikey = "aab29414b85baab539aeac7451de4b45";
-    //alert($scope.myPosition.coords)
-    //$http({method: 'GET', url: 'http://api.openweathermap.org/data/2.5/forecast', params: {'lat': $scope.myPosition.coords.latitude, 'lon': $scope.myPosition.coords.longitude, 'APPID': apikey}})
-    $http({method: 'GET', url: 'http://api.openweathermap.org/data/2.5/forecast', params: {'lat': 53, 'lon': 4, 'APPID': apikey}})
-      .then(function successCallback(response) {
-        weather = response["data"];
-        console.log(weather);
-      }, function errorCallback(response) {
-        alert("Weather isn't available")
-      });
+
   });
 
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http, $sce){
