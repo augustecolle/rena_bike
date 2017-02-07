@@ -79,7 +79,7 @@ function autoResizeDiv($rootScope){
         categories: {
           "name": "heights",
           "data": tempArray
-        }
+        },
         tickmarkPlacement: 'on',
         labels: {
           format: "{value:.2f} km"
