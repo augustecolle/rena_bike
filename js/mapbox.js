@@ -98,7 +98,6 @@ function mapbox($http, $rootScope, $sce){
           $rootScope.routeLats.push(data.data[i].lat);
           $rootScope.routeLongs.push(data.data[i].lng);
           $rootScope.cycletimes.push(data.data[i].cycletimes);
-          :wa
 
           //$rootScope.heading.push(data.data[i].heading);
           //$rootScope.distances.push(data.data[i].distances);
