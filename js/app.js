@@ -49,7 +49,6 @@ jsonTemp = {
 
     $rootScope.getWeather = function() {
       apikey = "2b26e3479da80130";
-      alert("weer ophalen")
       $http({method: "GET", url: "https://api.wunderground.com/api/" + apikey + "/hourly10day/q/" + $rootScope.latitude + "," + $rootScope.longitude + ".json"})
         .then(function successCallback(response) {
           $rootScope.weather = response["data"];
@@ -74,7 +73,8 @@ jsonTemp = {
     .when("/", {templateUrl: "map.html", controller: "mapCtrl"})
     .when("/map", {templateUrl: "map.html", controller: "mapCtrl"})
     .when("/statistics", {templateUrl: "statistics.html", controller: "statCtrl"})
-    .when("/weather", {templateUrl: "weather.html", controller: "weatherCtrl"});
+    //.when("/weather", {templateUrl: "weather.html", controller: "weatherCtrl"});
+    .when("/settings", {templateUrl: "settings.html", controller: "settingsCtrl"});
     //.otherwise({redirectTo: "/map"});    
   }, function($sceProvider){
     $sceProvider.enabled(false);
@@ -155,5 +155,10 @@ jsonTemp = {
       console.log("ERROR, did you initialize the flask server??");  
       console.log($rootScope.myPosition);
     });*/
+  });
+  
+  app.controller("settingsCtrl", function($rootScope, $scope){
+    closeNav();
+    $rootScope.hidden = 1;
   });
 })();
