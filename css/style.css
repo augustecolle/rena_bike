@@ -76,6 +76,10 @@ h1 .headerTitle {
   margin: 40px auto 20px auto;
 }
 
+.pushRight {
+  margin-left: 20px;
+}
+
 /* Landscape phone to portrait tablet */
 @media (max-width: 767px) { 
   #settingsForm {
