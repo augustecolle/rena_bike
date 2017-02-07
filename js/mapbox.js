@@ -58,7 +58,7 @@ function mapbox($http, $rootScope, $sce){
         $rootScope.getWeather();
         
         startPositionWatch();
-        //$rootScope.startWeatherWatch(1);
+        //$rootScope.startWeatherWatch(1); //weather get interval in minutes
         
       }, function(error){
         console.log("Error loading position: " + error);
@@ -97,6 +97,11 @@ function mapbox($http, $rootScope, $sce){
         for (var i = 0; i < data.data.length; i++){
           $rootScope.routeLats.push(data.data[i].lat);
           $rootScope.routeLongs.push(data.data[i].lng);
+          $rootScope.cycletimes.push(data.data[i].cycletimes);
+          :wa
+
+          //$rootScope.heading.push(data.data[i].heading);
+          //$rootScope.distances.push(data.data[i].distances);
         }
         path = data.data;
         var elevator = new google.maps.ElevationService;
@@ -108,12 +113,12 @@ function mapbox($http, $rootScope, $sce){
           for (var i = 0; i < elevations.length; i++){
             $rootScope.routeHeights.push(elevations[i].elevation);
           }
-          console.log("HEIGHTS:");
-          console.log($rootScope.routeHeights);
           url = "https://"+location.hostname+":5000/Energy"
           var param = {"lats" : $rootScope.routeLats,
                        "lngs" : $rootScope.routeLongs,
-                       "heights" : $rootScope.routeHeights};
+                       "heights" : $rootScope.routeHeights,
+                       "cycletimes" : $rootScope.cycletimes,
+                       "weather" : $rootScope.weather["hourly_forecast"]};
           $http.post(url, param).
             then(function(data, status, headers, config){
               console.log("Success");

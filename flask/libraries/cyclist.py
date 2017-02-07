@@ -60,16 +60,21 @@ class cyclist(object):
         '''TO DO: CALCULATE CdA for different angles from solidworks model'''
         return 0.6 #6.24*0.3048**2 #0.6
 
-    def get_Pwind(self):
+    def get_Pwind(self, i, trajectory):
         if (self.wind == None):
-            start = self.coords
-            self.wind = wh.get_winddata_lat_long(start[0], start[1])
-            print(self.wind)
+            print("WIND ERROR")
+            #start = self.coords
+            #self.wind = wh.get_winddata_lat_long(start[0], start[1])
+            #print(self.wind)
             #get windspeed
-        #rien v_wind = self.wind[0]['speed'] #already in m/s
-        v_wind = 3.5
-        #rien head_wind_alpha = self.compassbearing - (self.wind[0]['deg'])
-        head_wind_alpha = self.compassbearing - 90
+        orderedHoures = trajectory.weather.keys()
+        orderedHoures.sort()
+        index = int(trajectory.cycletimescum[i]/3600.0)
+        print(index)
+        v_wind = float(trajectory.weather[orderedHoures[index]]['windspeed']) #already in m/s
+        #v_wind = 3.5
+        head_wind_alpha = self.compassbearing - (trajectory.weather[orderedHoures[index]]['winddir'])
+        #head_wind_alpha = self.compassbearing - 90
         CdA = self.get_CdA() 
         rho = tr.get_air_density_at_height(self.height)
         P_wind = 0.5*rho*CdA*self.velocity*\
@@ -104,7 +109,8 @@ class cyclist(object):
         start = trajectory.get_startPosition()
         mid = [trajectory.latitudes[len(trajectory.distances)/2], trajectory.longitudes[len(trajectory.distances)/2]]
         self.coords = start
-        self.wind = wh.get_winddata_lat_long(mid[0], mid[1])
+        #self.wind = wh.get_winddata_lat_long(mid[0], mid[1])
+        self.wind = trajectory.weather 
         print(self.wind)
         compassbearings = np.array(trajectory.get_compass_bearing())
         #print(head_wind)
@@ -118,9 +124,9 @@ class cyclist(object):
             self.compassbearing = compassbearings[i]
             self.height = trajectory.heights[i]
             self.slope = slopes[i]
-            print(fmt % (i, distances[i], compassbearings[i], self.wind[0]['deg']))
-            P_wind = np.append(P_wind, self.get_Pwind()) 
-            E_wind = np.append(E_wind, self.get_Pwind()*distances[i]/self.velocity*1.0/3600) #in Wh
+            #print(fmt % (i, distances[i], compassbearings[i], self.wind[0]['deg']))
+            P_wind = np.append(P_wind, self.get_Pwind(i, trajectory)) 
+            E_wind = np.append(E_wind, self.get_Pwind(i, trajectory)*distances[i]/self.velocity*1.0/3600) #in Wh
             P_rol = np.append(P_rol, self.get_Prol()) 
             E_rol = np.append(E_rol, self.get_Prol()*distances[i]/self.velocity*1.0/3600) 
             P_klim = np.append(P_klim, self.get_Pklim()) 

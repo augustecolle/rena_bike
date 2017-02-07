@@ -38,7 +38,9 @@ jsonTemp = {
     $rootScope.routeLats = [];
     $rootScope.routeLongs = [];
     $rootScope.routeHeights = [];
+    $rootScope.cycletimes = [];
     $rootScope.energies = {};
+    $rootScope.weather = {};
     $rootScope.hidden = 0;
     $rootScope.tabs = [false, false, false];
     autoResizeDiv($rootScope);
@@ -53,8 +55,15 @@ jsonTemp = {
       $http({method: "GET", url: "https://api.wunderground.com/api/" + apikey + "/hourly10day/q/" + $rootScope.latitude + "," + $rootScope.longitude + ".json"})
         .then(function successCallback(response) {
           $rootScope.weather = response["data"];
-        }, function errorCallback(response) {
-          alert("Weather isn't available")
+          var url = "https://"+location.hostname+":5000/Weather"
+          $http.post(url, $rootScope.weather).
+            then(function(data, status, headers, config) {
+              console.log("Wheater post");
+            }, function(data, status, headers, config) {
+              console.log("weather error");
+            });
+          }, function errorCallback(response) {
+          alert("Weather isn't available");
       });
     }
     

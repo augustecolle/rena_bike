@@ -31,6 +31,9 @@ class traject(object):
         self.latitudes = []
         self.longitudes = []
         self.slopes = []
+        self.cycletimes = []
+        self.cycletimescum = []
+        self.weather = {}
         self.avg_slopes = []
         self.avg_slopes_eq = []
         self.heights_c = [] #continious splines of height data
