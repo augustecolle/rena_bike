@@ -16,24 +16,50 @@ houres = None
 
 class Weather(Resource):
     from libraries import weather as wh
+    sky = []
+    windspeeds = []
+    temperatures = []
+    winddirs = []
+    times = []
+
     def __init__(self):
         self.owm = self.wh.owm
         self.lat = None
         self.long = None
         self.raw_data = None
-        self.windspeeds = []
-        self.temperatures = []
         self.directions = []
         self.houres = {}
 
     def get(self):
-        self.lat = request.args.get('lat')
-        self.long = request.args.get('long')
-        fc = self.wh.get_detailed_forecast_lat_long(self.lat, self.long)
-        print fc
-        return fc
+        print(self.times)
+        print("self.times")
+        temp = {'plotdata':[
+                {
+                'name':'sky',
+                'data':self.sky
+                },
+                {
+                'name':'temperature',
+                'data':self.temperatures
+                },
+                {
+                'name':'wind direction',
+                'data':self.winddirs
+                },
+                {
+                'name':'wind speed',
+                'data':self.windspeeds
+                }],
+                'time':self.times
+                }
+        return temp
 
     def post(self):
+        Weather.sky = []
+        Weather.windspeeds = []
+        Weather.temperatures = []
+        Weather.winddirs = []
+        Weather.times = []
         self.data_raw = json.dumps(request.get_json(force=True)).encode('utf8')
         self.data_raw = json.loads(self.data_raw)["hourly_forecast"]
         for obj in self.data_raw:
@@ -43,10 +69,15 @@ class Weather(Resource):
                     "windspeed" : float(obj["wspd"]["metric"]),
                     "winddir" : float(obj["wdir"]["degrees"])
                     }
+            Weather.sky.append(float(obj["sky"]))
+            Weather.windspeeds.append(float(obj["wspd"]["metric"]))
+            Weather.temperatures.append(float(obj["temp"]["metric"]))
+            Weather.winddirs.append(float(obj["wdir"]["degrees"]))
+            print(int(obj["FCTTIME"]["epoch"]))
+            Weather.times.append(int(obj["FCTTIME"]["epoch"]))
         global houres
         houres = self.houres
-        print(houres)
-        print("POSTED WEATHER")
+        return houres
 
 
 class Trajectory(Resource):
@@ -78,7 +109,8 @@ class Trajectory(Resource):
             #self.distances.append(obj['distance'])
         #formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
         #formdata = formdata[:-1] #remove trailing |
-        formdata = [{"lat":self.lats[i], "lng":self.longs[i], "cycletimes":self.cycletimes[i]} for i in range(len(self.lats))] #for google API
+        cycletimescum = (np.cumsum(self.cycletimes)).tolist()
+        formdata = [{"lat":self.lats[i], "lng":self.longs[i], "cycletimes":self.cycletimes[i], "cycletimescum":cycletimescum[i]} for i in range(len(self.lats))] #for google API
         #self.getHeights()
         return formdata, 201
 

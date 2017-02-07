@@ -65,9 +65,6 @@ function autoResizeDiv($rootScope){
     console.log("graph2");
   console.log("lengths");
   var tempArray = [0].concat($rootScope.energies["position"]);
-  //console.log($rootScope.energies["position"].length);
-  //console.log($rootScope.routeHeights.length);
-  //console.log(tempArray);
   var w = window,
       d = document,
       e = d.documentElement,
@@ -160,7 +157,53 @@ function autoResizeDiv($rootScope){
       }
     });
   $rootScope.$broadcast('highchartsng.reflow');
-  document.getElementById("graph3").style.height = y + 'px';
+  document.getElementById("graph4").style.height = y + 'px';
+  } else if ($rootScope.tabs[3]) {
+     var w = window,
+         d = document,
+         e = d.documentElement,
+         g = d.getElementsByTagName('body')[0],
+         x = w.innerWidth || e.clientWidth || g.clientWidth,
+         y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+     y = y - document.getElementById('header').offsetHeight - getAbsoluteHeight(document.getElementById('tabHeadStatistics'));
+   
+    $rootScope.chart4Config = new Highcharts.Chart({
+      chart: {
+        renderTo: 'graph4',
+        type: 'line',
+        zoomType: 'xy',
+        animation: true,
+        width: x,
+        height: y
+      },
+      xAxis: {
+        categories: $rootScope.treated_weather['time'],
+        tickmarkPlacement: 'on',
+        labels: {
+          format: "{value:.2f} s"
+        },
+        title: {
+         text: "Seconds [s]" 
+        }
+      },
+      yAxis: {
+        title: {
+          text: "Weather data [-]"
+        }
+      },
+      series: $rootScope.treated_weather["plotdata"],
+      title: {
+        text: "Weather"
+      },
+      tooltip: {
+        formatter: function(){
+          return "Weather: " + Highcharts.numberFormat(this.x, 2) + " <br\> " + this.series.name + ": " + Highcharts.numberFormat(this.y, 2) + ""
+        }
+      }
+    });
+  $rootScope.$broadcast('highchartsng.reflow');
+  document.getElementById("graph4").style.height = y + 'px';
+
 
   } else if (document.getElementById("map")) {
   console.log("map resized");

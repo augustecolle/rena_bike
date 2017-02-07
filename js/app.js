@@ -39,10 +39,12 @@ jsonTemp = {
     $rootScope.routeLongs = [];
     $rootScope.routeHeights = [];
     $rootScope.cycletimes = [];
+    $rootScope.cycletimescum = [];
     $rootScope.energies = {};
     $rootScope.weather = {};
+    $rootScope.treated_weather = {};
     $rootScope.hidden = 0;
-    $rootScope.tabs = [false, false, false];
+    $rootScope.tabs = [false, false, false, false];
     autoResizeDiv($rootScope);
     mapbox($http, $rootScope, $sce);
     window.onresize = function(){
@@ -64,6 +66,15 @@ jsonTemp = {
           }, function errorCallback(response) {
           alert("Weather isn't available");
       });
+      $http.get("https://"+location.hostname+":5000/Weather").
+        then(function(response) {
+          $rootScope.treated_weather = response.data;
+          console.log(response.data);
+          console.log("Treated data");
+        }, function errorCallback(response){
+          console.log("Error on treating data");  
+        });
+
     }
     
     $rootScope.startWeatherWatch = function(intervalTime) { //intervalTime in minutes
@@ -125,14 +136,14 @@ jsonTemp = {
   app.controller("statCtrl", function($scope, $rootScope){
     closeNav();
     $rootScope.hidden = 1;
-    $scope.tabs = [true, false, false];
-    $rootScope.tabs = [true, false, false];
+    $scope.tabs = [true, false, false, false];
+    $rootScope.tabs = [true, false, false, false];
     autoResizeDiv($rootScope);
 
     $scope.clickTab = function(number){
-    $scope.tabs = [false, false, false];
+    $scope.tabs = [false, false, false, false];
     $scope.tabs[number] = true;
-    $rootScope.tabs = [false, false, false];
+    $rootScope.tabs = [false, false, false, false];
     $rootScope.tabs[number] = true;
     //highlight the selection
     tablinks = document.getElementsByClassName("tablink");

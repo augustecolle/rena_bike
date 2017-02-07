@@ -94,11 +94,13 @@ function mapbox($http, $rootScope, $sce){
         // when the response is available
         $rootScope.routeLats = [];
         $rootScope.routeLongs = [];
+        $rootScope.cycletimes = [];
+        $rootScope.cycletimescum = [];
         for (var i = 0; i < data.data.length; i++){
           $rootScope.routeLats.push(data.data[i].lat);
           $rootScope.routeLongs.push(data.data[i].lng);
           $rootScope.cycletimes.push(data.data[i].cycletimes);
-
+          $rootScope.cycletimescum.push(data.data[i].cycletimescum);
           //$rootScope.heading.push(data.data[i].heading);
           //$rootScope.distances.push(data.data[i].distances);
         }
