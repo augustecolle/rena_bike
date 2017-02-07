@@ -1,33 +1,40 @@
-<div class="wrapper">
-
-
-  <form class="form-horizontal">
+<div class="">
+  <form id="settingsForm">
     <div class="form-group">
-      <label for="inputEmail3" class="col-sm-2 control-label">Email</label>
-      <div class="col-sm-10">
-        <input type="email" class="form-control" id="inputEmail3" placeholder="Email">
+      <label>Profile</label>
+      <div class="input-group">
+        <select class="form-control" ng-model="profileID" ng-options="x.id as x.name for x in places"></select>
+        <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="addProfile()">{{profileText}}</button>
+        </span>
       </div>
     </div>
-    <div class="form-group">
-      <label for="inputPassword3" class="col-sm-2 control-label">Password</label>
-      <div class="col-sm-10">
-        <input type="password" class="form-control" id="inputPassword3" placeholder="Password">
-      </div>
+    <div class="form-group" ng-show="newProfile">
+      <label>Profile name</label>
+      <input type="text" ng-model="name" name="name" class="form-control" placeholder="Name" required>
+    </div>
+    <div class="form-group" ng-show="newProfile">
+      <label>Weight</label>
+      <input type="text" ng-model="weight" name="weight" class="form-control" placeholder="Weight" required>
+    </div>
+    <div class="form-group" ng-show="newProfile">
+      <label>Length</label>
+      <input type="text" ng-model="length" name="length" class="form-control" placeholder="Length" required>
     </div>
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <div class="checkbox">
-          <label>
-            <input type="checkbox"> Remember me
-          </label>
-        </div>
-      </div>
+      <label>Friction coefficient</label>
+      <input type="text" ng-model="friction" name="friction" class="form-control" placeholder="Friction" required>
     </div>
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-default">Sign in</button>
-      </div>
+      <label>Drag coefficient</label>
+      <input type="text" ng-model="drag" name="drag" class="form-control" placeholder="Drag" required>
     </div>
+    <div class="form-group">
+      <label>Average velocity</label>
+      <input type="text" ng-model="velocity" name="velocity" class="form-control" placeholder="Velocity " required>
+    </div>
+    <hr>
+    <button class="btn btn-default btn-block" ng-click="save()" ng-disabled="!checkForm()">Save</button>
+    <a href="#" class="btn btn-default btn-block">Cancel</a>
   </form>
-
 </div>

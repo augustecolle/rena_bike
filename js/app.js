@@ -162,5 +162,18 @@ jsonTemp = {
   app.controller("settingsCtrl", function($rootScope, $scope){
     closeNav();
     $rootScope.hidden = 1;
+    $scope.newProfile = false;
+    $scope.profileText = "New"
+    
+    $scope.addProfile = function(){
+      if(!$scope.newProfile){
+        $scope.newProfile = true;
+        $scope.profileText = "Hide"
+      } else {
+        $scope.newProfile = false;
+        $scope.profileText = "New"
+      }
+    };
+    
   });
 })();
