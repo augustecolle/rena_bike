@@ -59,19 +59,56 @@ function autoResizeDiv($rootScope){
         }
       }
     });
+  $rootScope.$broadcast('highchartsng.reflow');
+  document.getElementById("graph1").style.height = y + 'px';
+  console.log("lengths");
+  var tempArray = [0].concat($rootScope.energies["position"]);
+  console.log($rootScope.energies["position"].length);
+  console.log($rootScope.routeHeights.length);
+  console.log(tempArray);
+  $rootScope.chart2Config = new Highcharts.Chart({
+      chart: {
+        renderTo: 'graph2',
+        type: 'line',
+        zoomType: 'xy',
+        animation: true,
+        width: x,
+        height: y
+      },
+      xAxis: {
+        categories: {
+          "name": "heights",
+          "data": tempArray
+        }
+        tickmarkPlacement: 'on',
+        labels: {
+          format: "{value:.2f} km"
+        },
+        title: {
+         text: "Distance [km]" 
+        }
+      },
+      yAxis: {
+        categories: {
+          "name": "heights",
+          "data": $rootScope.routeHeights
+        },
+        tickmarkPlacement: 'on',
+        labels: {
+          format: "{value:.2f} m"
+        },
+        title: {
+         text: "Height [m]" 
+        }
+      },
+      tooltip: {
+        formatter: function(){
+          return "Distance: " +this.x + " km <br\> " + this.series.name + ": " + this.y + " m"
+        }
+      }
+    });
     $rootScope.$broadcast('highchartsng.reflow');
-    document.getElementById("graph1").style.height = y + 'px';
-//    var w = window,
-//        d = document,
-//        e = d.documentElement,
-//        g = d.getElementsByTagName('body')[0],
-//        x = w.innerWidth || e.clientWidth || g.clientWidth,
-//        y = w.innerHeight|| e.clientHeight|| g.clientHeight;
-//    y = y - document.getElementById('header').offsetHeight - getAbsoluteHeight(document.getElementById('tabHeadStatistics'));
-//    $rootScope.hsWidth = x;
-//    $rootScope.hsHeight = y;
-//    console.log($rootScope);
-    console.log("resized chart");
+    document.getElementById("graph2").style.height = y + 'px';
 
   } else if (document.getElementById("map")) {
   console.log("map resized");
