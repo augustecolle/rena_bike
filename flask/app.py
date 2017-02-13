@@ -161,7 +161,7 @@ class Energy(Resource):
         self.tr.get_distances()
         self.tr.get_compass_bearing()
         self.tr.get_slopes()
-        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=36)
+        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=20)
         print(self.energies)
         #print(self.data_raw)
         return json.dumps(self.energies), 201
