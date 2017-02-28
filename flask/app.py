@@ -173,9 +173,37 @@ class Energy(Resource):
         #print(self.data_raw)
         return json.dumps(self.energies), 201
 
+class Settings(Resource):
+    def __init__(self):
+      import sqlite3
+      import os
+      
+      exists = os.path.isfile("data.db")
+      
+      self.conn = sqlite3.connect("data.db")
+      self.cursor = self.conn.cursor()
+     
+      if not exists:
+        self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")   
+      
+    def get(self): #Send all profile settings
+        data = {}
+        for row in self.cursor.execute("SELECT rowid, * FROM profiles;"):
+          data[row[1]] = row
+          
+        return data
+    
+    def put(self): #Save a new profile
+      print "put"
+      
+    def delete(self): #Delete a profile
+      print "delete"
+        
+      
 api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
 api.add_resource(Energy, '/Energy')
+api.add_resource(Settings, '/Settings')
 
 #appble CORS (cross origin requests), from: http://coalkids.github.io/flask-cors.html
 @app.before_request
