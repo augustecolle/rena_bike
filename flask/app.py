@@ -31,8 +31,8 @@ class Weather(Resource):
         self.houres = {}
 
     def get(self):
-        print(self.times)
-        print("self.times")
+        #print(self.times)
+        #print("self.times")
         temp = {'plotdata':[
                 {
                 'name':'sky',
@@ -90,6 +90,7 @@ class Trajectory(Resource):
         self.cycletimes = []
         self.heading = []
         self.distances = []
+        self.bearingsFromMapbox = []
 
     def get(self):
         pass
@@ -100,17 +101,21 @@ class Trajectory(Resource):
         #self.data_raw is now a dictionary from route object containing the keys [duration, distance, steps, geometry, summary]
         self.lats = []
         self.longs = []
+        self.bearingsFromMapbox = []
         for obj in self.data_raw['steps']:
             #print(str(obj['maneuver']['location']['coordinates'][0]) + "\t" + str(obj['maneuver']['location']['coordinates'][1]))
             self.lats.append(obj['maneuver']['location']['coordinates'][1])
             self.longs.append(obj['maneuver']['location']['coordinates'][0]) 
             self.cycletimes.append(obj['duration'])
+            self.bearingsFromMapbox.append(obj['heading'])
+            print("BEARING FROM MAPBOX")
+            print(obj['heading'])
             #self.heading.append(obj['heading'])
             #self.distances.append(obj['distance'])
         #formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
         #formdata = formdata[:-1] #remove trailing |
         cycletimescum = (np.cumsum(self.cycletimes)).tolist()
-        formdata = [{"lat":self.lats[i], "lng":self.longs[i], "cycletimes":self.cycletimes[i], "cycletimescum":cycletimescum[i]} for i in range(len(self.lats))] #for google API
+        formdata = [{"lat":self.lats[i], "lng":self.longs[i], "cycletimes":self.cycletimes[i], "cycletimescum":cycletimescum[i], "bearingsFromMapbox":self.bearingsFromMapbox[i]} for i in range(len(self.lats))] #for google API
         #self.getHeights()
         return formdata, 201
 
@@ -131,9 +136,9 @@ class Trajectory(Resource):
         # Get the search results
         br.submit()
         for i in br.links(text_regex='Click'):
-            print(i)
+            #print(i)
             f = br.retrieve(i.absolute_url, filename = './data.txt')
-        print("Scraped the heights")
+        #print("Scraped the heights")
 
 class Energy(Resource):
     energies = {}
@@ -144,8 +149,6 @@ class Energy(Resource):
         self.cl = cl.cyclist()
         global houres
         self.tr.weather = houres
-        print("is houres visible?")
-        print(houres)
         
     def get(self):
         return json.dumps(self.energies)
@@ -153,16 +156,20 @@ class Energy(Resource):
     def post(self):
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         data_raw = request.get_json(force=True);
+        #print(data_raw)
         self.tr.heights = data_raw["heights"]
         self.tr.longitudes = data_raw["lngs"]
         self.tr.latitudes = data_raw["lats"]
+        self.tr.bearingsFromMapbox = data_raw["bearingsFromMapbox"]
+        print("BEARINGS IN ENERGY")
+        print(str(self.tr.bearingsFromMapbox))
         self.tr.cycletimes = data_raw["cycletimes"]
         self.tr.cycletimescum = (np.cumsum(self.tr.cycletimes)).tolist()
         self.tr.get_distances()
         self.tr.get_compass_bearing()
         self.tr.get_slopes()
-        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=20)
-        print(self.energies)
+        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=30)
+        #print(self.energies)
         #print(self.data_raw)
         return json.dumps(self.energies), 201
 

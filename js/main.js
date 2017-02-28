@@ -38,20 +38,33 @@ function autoResizeDiv($rootScope){
         categories: $rootScope.energies["position"],
         tickmarkPlacement: 'on',
         labels: {
+             style: {
+            fontSize:'18px'
+          },
+       fontSize:'50px',
           format: "{value:.2f} km"
         },
         title: {
-         text: "Distance [km]" 
+            style: {
+            fontSize:'18px'
+          },
+       text: "Distance [km]" 
         }
       },
       yAxis: {
         title: {
-          text: "Energy [Wh]"
+           style: {
+            fontSize:'18px'
+          },
+         text: "Energy [Wh]"
         }
       },
       series: $rootScope.energies["energy"],
       title: {
-        text: "Energy usage"
+              style: {
+            fontSize:'18px'
+          },
+    text: "Energy usage"
       },
       tooltip: {
         formatter: function(){
@@ -87,15 +100,30 @@ function autoResizeDiv($rootScope){
         categories: tempArray,
         tickmarkPlacement: 'on',
         labels: {
-          format: "{value:.2f} km"
+           style: {
+            fontSize:'18px'
+          },
+         format: "{value:.2f} km"
         },
         title: {
-         text: "Distance [km]" 
+            style: {
+            fontSize:'22px'
+          },
+       text: "Distance [km]" 
         }
       },
       yAxis: {
         title: {
-          text: "Height [m]"
+               style: {
+            fontSize:'22px'
+          },
+     text: "Height [m]"
+        },
+        labels: {
+           style: {
+            fontSize:'18px'
+          },
+         format: "{value:.0f} m"
         }
       },
       series: [{
@@ -103,7 +131,10 @@ function autoResizeDiv($rootScope){
         'data': $rootScope.routeHeights
       }],
       title: {
-        text: "Trajectory"
+           style: {
+            fontSize:'30px'
+          },
+       text: "Trajectory"
       },
       tooltip: {
         formatter: function(){
@@ -135,10 +166,16 @@ function autoResizeDiv($rootScope){
         categories: $rootScope.energies["position"],
         tickmarkPlacement: 'on',
         labels: {
-          format: "{value:.2f} km"
+           style: {
+            fontSize:'18px'
+          },
+         format: "{value:.2f} km"
         },
         title: {
-         text: "Distance [km]" 
+           style: {
+            fontSize:'18px'
+          },
+        text: "Distance [km]" 
         }
       },
       yAxis: {
@@ -180,10 +217,16 @@ function autoResizeDiv($rootScope){
         categories: $rootScope.treated_weather['time'],
         tickmarkPlacement: 'on',
         labels: {
-          format: "{value:.2f} s"
+          style: {
+            fontSize:'18px'
+          },
+        format: "{value:.2f} s"
         },
         title: {
-         text: "Seconds [s]" 
+         style: {
+            fontSize:'18px'
+          },
+        text: "Seconds [s]" 
         }
       },
       yAxis: {

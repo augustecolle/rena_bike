@@ -101,6 +101,7 @@ function mapbox($http, $rootScope, $sce){
           $rootScope.routeLongs.push(data.data[i].lng);
           $rootScope.cycletimes.push(data.data[i].cycletimes);
           $rootScope.cycletimescum.push(data.data[i].cycletimescum);
+          $rootScope.bearingsFromMapbox.push(data.data[i].bearingsFromMapbox);
           //$rootScope.heading.push(data.data[i].heading);
           //$rootScope.distances.push(data.data[i].distances);
         }
@@ -119,7 +120,9 @@ function mapbox($http, $rootScope, $sce){
                        "lngs" : $rootScope.routeLongs,
                        "heights" : $rootScope.routeHeights,
                        "cycletimes" : $rootScope.cycletimes,
-                       "weather" : $rootScope.weather["hourly_forecast"]};
+                       "weather" : $rootScope.weather["hourly_forecast"],
+                       "bearingsFromMapbox": $rootScope.bearingsFromMapbox
+                      };
           $http.post(url, param).
             then(function(data, status, headers, config){
               console.log("Success");

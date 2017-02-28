@@ -43,6 +43,7 @@ jsonTemp = {
     $rootScope.energies = {};
     $rootScope.weather = {};
     $rootScope.treated_weather = {};
+    $rootScope.bearingsFromMapbox = [];
     $rootScope.hidden = 0;
     $rootScope.tabs = [false, false, false, false];
     autoResizeDiv($rootScope);

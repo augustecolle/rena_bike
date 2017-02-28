@@ -72,14 +72,25 @@ class cyclist(object):
         index = int(trajectory.cycletimescum[i]/3600.0)
         print(index)
         v_wind = float(trajectory.weather[orderedHoures[index]]['windspeed']) #already in m/s
-        #v_wind = 3.5
-        head_wind_alpha = self.compassbearing - (trajectory.weather[orderedHoures[index]]['winddir'])
+        print("VWIND: ")
+        print(str(v_wind))
+        #head_wind_alpha = self.compassbearing - (trajectory.weather[orderedHoures[index]]['winddir'])
+        print("BEARINGS: ")
+        print(str(trajectory.weather[orderedHoures[index]]['winddir']) + "\t" + str(trajectory.bearingsFromMapbox[i]))
+        head_wind_alpha = trajectory.bearingsFromMapbox[i] - (trajectory.weather[orderedHoures[index]]['winddir'])
+        print("HEAD WIND")
+        print(str(head_wind_alpha))
+        print("BEARING")
         #head_wind_alpha = self.compassbearing - 90
+        #------REMOVE THIS------#
+        head_wind_alpha = 180
+        v_wind = 20/3.6
+        ########################
         CdA = self.get_CdA() 
         rho = tr.get_air_density_at_height(self.height)
         P_wind = 0.5*rho*CdA*self.velocity*\
-                (self.velocity**2 + v_wind**2 + 2*self.velocity*v_wind*np.cos(head_wind_alpha*np.pi/180))\
-                *np.cos(np.arctan(v_wind*np.sin(head_wind_alpha*np.pi/180)/(self.velocity - (v_wind*np.cos(head_wind_alpha*np.pi/180))))) #From the thesis of Guylian Stevens
+                (self.velocity**2 + v_wind**2 - 2*self.velocity*v_wind*np.cos(head_wind_alpha*np.pi/180))\
+                *np.cos(np.arctan(v_wind*np.sin(head_wind_alpha*np.pi/180)/(self.velocity + (v_wind*np.cos(head_wind_alpha*np.pi/180))))) #From the thesis of Guylian Stevens
         return P_wind
 
     def get_Prol(self, Crol = None):
@@ -111,15 +122,15 @@ class cyclist(object):
         self.coords = start
         #self.wind = wh.get_winddata_lat_long(mid[0], mid[1])
         self.wind = trajectory.weather 
-        print(self.wind)
+        #print(self.wind)
         compassbearings = np.array(trajectory.get_compass_bearing())
         #print(head_wind)
         distances = trajectory.distances
         slopes = trajectory.get_slopes()
         #each 500 meters full stop and again accelarating
-        E_acc = 0.5*self.weight*self.velocity**2*(np.round(np.sum(trajectory.distances)/500.0))/3600.0*1/(len(trajectory.distances)) #in Wh
+        #E_acc = 0.5*self.weight*self.velocity**2*(np.round(np.sum(trajectory.distances)/500.0))/3600.0*1/(len(trajectory.distances)) #in Wh
         fmt = '%-8s%-20s%-20s%s'
-        print(fmt % ('', 'Distances', 'Compassbearing', 'Winddirection'))
+        #print(fmt % ('', 'Distances', 'Compassbearing', 'Winddirection'))
         for i in range(len(distances)):
             self.compassbearing = compassbearings[i]
             self.height = trajectory.heights[i]
@@ -135,15 +146,15 @@ class cyclist(object):
                 'power' : [
                     {'name' : 'Pwind', 'data' : P_wind.tolist()},
                     {'name' : 'Prol' , 'data' : P_rol.tolist()},
-                    {'name' : 'Pklim', 'data' : P_klim.tolist()},
+                    {'name' : 'Pklim', 'data' : [x if x >= 0  else 0 for x in P_klim.tolist()]},
                     {'name' : 'Ptot', 'data' : (P_wind + P_rol + P_klim).tolist()}
                     ],
                 'energy': [
                     {'name' : 'Ewind', 'data' : (np.cumsum(E_wind)).tolist()},
                     {'name' : 'Erol' , 'data' : (np.cumsum(E_rol)).tolist()},
-                    {'name' : 'Eklim', 'data' : (np.cumsum(E_klim)).tolist()},
-                    {'name' : 'Eacc' , 'data' : (np.cumsum(E_acc)).tolist()},
-                    {'name' : 'Etot' , 'data' : (np.cumsum(E_acc) + np.cumsum(E_wind) + np.cumsum(E_rol) + np.cumsum(E_klim)).tolist()}],
+                    {'name' : 'Eklim', 'data' : (np.cumsum([x if x >= 0 else 0 for x in E_klim])).tolist()},
+                    #{'name' : 'Eacc' , 'data' : (np.cumsum(E_acc)).tolist()},
+                    {'name' : 'Etot' , 'data' : (np.cumsum(E_wind) + np.cumsum(E_rol) + np.cumsum([x if x >= 0 else 0 for x in E_klim])).tolist()}],
                 'altitude' : trajectory.heights}
 
 
