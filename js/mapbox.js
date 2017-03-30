@@ -44,6 +44,11 @@ function mapbox($http, $rootScope, $sce){
     var nav = new mapboxgl.NavigationControl();
     map.addControl(nav, 'bottom-left');
     //set center on current location with HTML5
+     var options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+          maximumAge: 0
+    };
     if (navigator.geolocation) {
       
       navigator.geolocation.getCurrentPosition(function(position) {
@@ -56,7 +61,6 @@ function mapbox($http, $rootScope, $sce){
         $rootScope.latitude = position.coords.latitude;
         $rootScope.longitude = position.coords.longitude;
         $rootScope.getWeather();
-        
         startPositionWatch();
         //$rootScope.startWeatherWatch(1); //weather get interval in minutes
         
@@ -65,27 +69,47 @@ function mapbox($http, $rootScope, $sce){
       }, {timeout:10000});
 
       startPositionWatch = function(){
+        url = "https://"+location.hostname+":5000/Position";
         postionIndicator = navigator.geolocation.watchPosition(function(position) {
+        var parameter = {
+          "lat" : position.coords.latitude,
+          "lng" : position.coords.longitude,
+          "acc" : position.coords.accuracy
+        };
+        $http.post(url, parameter).
+          then(function(data, status, headers, config) {
+            console.log("posted postion");
+          }, function(data, status, headers, config) {
+              console.log("Error");
+          });
           rider.setLngLat([position.coords.longitude, position.coords.latitude]);
+          $rootScope.latitude = position.coords.latitude;
+          $rootScope.longitude = position.coords.longitude;
+          $rootScope.accuracy = position.coords.accuracy; //in meters
+          console.log($rootScope.accuracy);
+
         }, function(error){
           console.log("Error loading position: " + error);
-        }, {timeout:10000});
+        }, options);
       }
     } else {
       alert("No geolocation supported");
     }
-    map.addControl(directions);
-    map.addControl(new mapboxgl.GeolocateControl({
+    var geolocate = new mapboxgl.GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true,
         watchPosition: true
       }
-    }), 'bottom-right');
+    });
+    //geolocate.on('geolocate', function(e){
+    //  console.log(e);
+    //});
+    map.addControl(directions);
+    map.addControl(geolocate, 'bottom-right');
   });
 
   directions.on('route', function(e) {
     var parameter = e.route;
-
     url = "https://"+location.hostname+":5000/Trajectory"
     console.log(parameter)
     $http.post(url, parameter).

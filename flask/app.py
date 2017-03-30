@@ -1,11 +1,10 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 import ssl
-import pyowm
 import json
 import numpy as np
 import re
-#import mechanize
+import mechanize
 import socket
 
 app = Flask(__name__)
@@ -13,6 +12,27 @@ api = Api(app)
 
 global houres
 houres = None
+
+class Position(Resource):
+
+    def __init__(self):
+        self.lng = 0
+        self.lat = 0
+        self.acc = 0
+        self.data_raw = 0
+
+    def post(self):
+        print("JAAA")
+        print(request.get_json(force=True))
+        #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
+        #self.data_raw = json.loads(self.data_raw)
+        #print(self.data_raw)
+        return 201
+
+    def get(self):
+        return json.dumps(self.data_raw)
+
+
 
 class Weather(Resource):
     from libraries import weather as wh
@@ -204,6 +224,7 @@ api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
 api.add_resource(Energy, '/Energy')
 api.add_resource(Settings, '/Settings')
+api.add_resource(Position, '/Position')
 
 #appble CORS (cross origin requests), from: http://coalkids.github.io/flask-cors.html
 @app.before_request
@@ -240,7 +261,7 @@ def set_allow_origin(resp):
 
 
 if __name__ == "__main__":
-    ip = str([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0])
+    ip = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1] #str([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0])
     context = ('/etc/apache2/ssl/apache.crt', '/etc/apache2/ssl/apache.key')
     app.run(debug=False, host=ip, ssl_context=context, port=5000, threaded=True)
 

@@ -35,6 +35,7 @@ jsonTemp = {
   app.run(function($rootScope, $http, $sce, $interval) {
     $rootScope.latitude = 0;
     $rootScope.longitude = 0;
+    $rootScope.accuracy = 0;
     $rootScope.routeLats = [];
     $rootScope.routeLongs = [];
     $rootScope.routeHeights = [];
