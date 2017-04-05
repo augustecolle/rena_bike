@@ -3,7 +3,7 @@
     <div class="form-group">
       <label>Profile</label>
       <div class="input-group">
-        <select class="form-control" ng-model="selectedName" ng-options="k as k for (k,v) in response" ng-change="update()"></select>
+        <select class="form-control" ng-model="selectedID" ng-options="k as v.Name for (k,v) in response" ng-change="update()"></select>
         <span class="input-group-btn">
             <button class="btn btn-default" type="button" ng-click="addProfile()">{{profileText}}</button>
         </span>

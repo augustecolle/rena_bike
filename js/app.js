@@ -146,11 +146,13 @@
     $scope.request_users = function(){
       $http.get("https://"+location.hostname+":5000/Settings")
           .then(function(response) {
-            $scope.response = response.data;
+            $scope.response = JSON.parse(response.data);
+            console.log($scope.response);
       }, function errorCallback(response){
         console.log("ERROR, did you initialize the flask server??");
       });
     };
+    
     $scope.request_users();
     $rootScope.hidden = 1;
     $scope.newProfile = false;
@@ -159,15 +161,20 @@
 
     $scope.update = function(){
       $scope.request_users();
-      $scope.name = $scope.selectedName;
-      $scope.ID = $scope.response[$scope.name][0];
-      $rootScope.ID = $scope.ID; //global view of the user ID
-      $scope.weight = $scope.response[$scope.name][1];
-      $scope.length = $scope.response[$scope.name][2];
-      $scope.friction = $scope.response[$scope.name][7];
-      $scope.drag = $scope.response[$scope.name][8];
-      $scope.velocity = $scope.response[$scope.name][10];
-      $scope.windspeed = $scope.response[$scope.name][9];
+      $rootScope.ID = $scope.selectedID;
+      $scope.name = $scope.response[$rootScope.ID].name;
+      $scope.weight = $scope.response[$rootScope.ID].weight;
+      $scope.length = $scope.response[$rootScope.ID].length;
+      $scope.cr = $scope.response[$rootScope.ID].cr;
+      $scope.cda = $scope.response[$rootScope.ID].cda;
+      $scope.v_cyclist = $scope.response[$rootScope.ID].v_cyclist;
+      $scope.v_wind = $scope.response[$rootScope.ID].v_wind;
+      //$scope.weight = $scope.response[$scope.name][1];
+      //$scope.length = $scope.response[$scope.name][2];
+      //$scope.friction = $scope.response[$scope.name][7];
+      //$scope.drag = $scope.response[$scope.name][8];
+      //$scope.velocity = $scope.response[$scope.name][10];
+      //$scope.windspeed = $scope.response[$scope.name][9];
       $scope.profileText = "Edit"
       $scope.editProfile = true;
     }
