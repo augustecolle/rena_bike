@@ -198,12 +198,9 @@ class Settings(Resource):
         import MySQLdb
         import os
         exists = os.path.isfile("data.db")
-
         self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
         self.cursor = self.db.cursor()
         self.data = {}
-
-
         if not exists:
             print("no database: code one")
             #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
@@ -219,15 +216,16 @@ class Settings(Resource):
 
     def post(self): #Save a new profile
         data_raw = request.get_json(force=True)
+        print(data_raw)
         self.cursor.execute("SELECT ID FROM eBike.user_settings")
         a = self.cursor.fetchall()
-        if (data_raw.values()[0][0] in a[0]):
-            self.cursor.execute("UPDATE eBike.user_settings SET Name = '"+str(data_raw.keys()[0])+"', Gewicht = "+str(data_raw.values()[0][1])+", Lengte = "+str(data_raw.values()[0][2])+", Cr = "+str(data_raw.values()[0][3])+", CdA = "+str(data_raw.values()[0][4])+", v_wind = "+str(data_raw.values()[0][5])+", v_fietser = "+str(data_raw.values()[0][6])+" WHERE user_settings.ID = "+str(data_raw.values()[0][0])+";")
+        if (int(data_raw.values()[0][0]) in [x[0] for x in a]):
+            self.cursor.execute("UPDATE eBike.user_settings SET name = '"+str(data_raw.keys()[0])+"', weight = "+str(data_raw.values()[0][1])+", length = "+str(data_raw.values()[0][2])+", cr = "+str(data_raw.values()[0][3])+", cda = "+str(data_raw.values()[0][4])+", v_wind = "+str(data_raw.values()[0][5])+", v_cyclist = "+str(data_raw.values()[0][6])+" WHERE user_settings.ID = "+str(data_raw.values()[0][0])+";")
         else:
-            self.cursor.execute("INSERT INTO eBike.user_settings (`ID`, `Name`, `Gewicht`, `Lengte`, `P_k`, `P_lambda`, `v_k`, `v_lambda`, `Cr`, `CdA`, `v_wind`, `v_fietser`) VALUES (NULL,'"+str(data_raw.keys()[0])+"',"+str(data_raw.values()[0][1])+" ,"+str(data_raw.values()[0][2])+" , 0, 0, 0, 0, "+str(data_raw.values()[0][3])+", "+str(data_raw.values()[0][4])+", "+str(data_raw.values()[0][5])+" , "+str(data_raw.values()[0][6])+");")
+            self.cursor.execute("INSERT INTO eBike.user_settings (`ID`, `name`, `weight`, `length`, `P_k`, `P_lambda`, `v_k`, `v_lambda`, `cr`, `cda`, `v_wind`, `v_cyclist`) VALUES (NULL,'"+str(data_raw.keys()[0])+"',"+str(data_raw.values()[0][1])+" ,"+str(data_raw.values()[0][2])+" , 0, 0, 0, 0, "+str(data_raw.values()[0][3])+", "+str(data_raw.values()[0][4])+", "+str(data_raw.values()[0][5])+" , "+str(data_raw.values()[0][6])+");")
 
-        self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw.values()[0][0])+";")
         self.db.commit()
+        self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw.values()[0][0])+";")
 
         return 201
 
@@ -235,12 +233,36 @@ class Settings(Resource):
         print "delete"
 
 
+class globalSettings(Resource):
+    def __init__(self):
+        import MySQLdb
+        import os
+        exists = os.path.isfile("data.db")
+        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+        self.cursor = self.db.cursor()
+        self.data = {}
+        if not exists:
+            print("no database: code one")
+            #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
+
+    def get(self):
+        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
+        return self.cursor.fetchall()[0][0]
+
+    def post(self):
+        data_raw = request.get_json(force=True)
+        print(data_raw)
+        self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw)+";")
+        self.db.commit()
+        return 201
+
+
 api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
 api.add_resource(Energy, '/Energy')
 api.add_resource(Settings, '/Settings')
 api.add_resource(Position, '/Position')
-
+api.add_resource(globalSettings, '/globalSettings')
 #appble CORS (cross origin requests), from: http://coalkids.github.io/flask-cors.html
 @app.before_request
 def option_autoreply():

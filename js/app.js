@@ -143,42 +143,68 @@
   
   app.controller("settingsCtrl", function($rootScope, $scope, $http){
     //closeNav();
+    //
     $scope.request_users = function(){
       $http.get("https://"+location.hostname+":5000/Settings")
           .then(function(response) {
-            $scope.response = JSON.parse(response.data);
-            console.log($scope.response);
+            $scope.userdata = JSON.parse(response.data);
+            console.log($scope.userdata);
+            $scope.update();
       }, function errorCallback(response){
-        console.log("ERROR, did you initialize the flask server??");
+        console.log("ERROR in settings request, did you initialize the flask server??");
       });
     };
-    
-    $scope.request_users();
+ 
+    $scope.request_lastID = function(){
+      $http.get("https://"+location.hostname+":5000/globalSettings")
+          .then(function(response) {
+            $scope.selectedID = response.data;
+            $scope.request_users();
+      }, function errorCallback(response){
+        console.log("ERROR in global settings request, did you initialize the flask server??");
+      });
+    }
+
+    $scope.update = function(){
+      $rootScope.ID = $scope.selectedID;
+      //$scope.selectedID = $scope.userdata[$rootScope.ID].name;
+      $scope.name = $scope.userdata[$rootScope.ID].name;
+      $scope.weight = $scope.userdata[$rootScope.ID].weight;
+      $scope.length = $scope.userdata[$rootScope.ID].length;
+      $scope.cr = $scope.userdata[$rootScope.ID].cr;
+      $scope.cda = $scope.userdata[$rootScope.ID].cda;
+      $scope.v_cyclist = $scope.userdata[$rootScope.ID].v_cyclist;
+      $scope.v_wind = $scope.userdata[$rootScope.ID].v_wind;
+      $scope.profileText = "Edit"
+      $scope.editProfile = true;
+      var url = "https://"+location.hostname+":5000/globalSettings";
+      $http.post(url, $rootScope.ID).
+        then(function(data, status, headers, config) {
+          console.log("posted settings");
+        }, function(data, status, headers, config) {
+          console.log("ERROR IN SENDING USER SETTINGS TO DB");
+        });
+    }
+ 
+    $scope.newPr = function(){
+      console.log("new profile");
+      $scope.name = "";
+      $scope.profileText = "Edit";
+      $scope.newProfile = true;
+      $scope.weight = 0;
+      $scope.length = 0;
+      $scope.cr = 0;
+      $scope.cda = 0;
+      $scope.v_cyclist = 0;
+      $scope.v_wind = 0;
+    }
+   
+    $scope.request_lastID();
     $rootScope.hidden = 1;
     $scope.newProfile = false;
     $scope.editProfile = false;
     $scope.profileText = "New"
-
-    $scope.update = function(){
-      $scope.request_users();
-      $rootScope.ID = $scope.selectedID;
-      $scope.name = $scope.response[$rootScope.ID].name;
-      $scope.weight = $scope.response[$rootScope.ID].weight;
-      $scope.length = $scope.response[$rootScope.ID].length;
-      $scope.cr = $scope.response[$rootScope.ID].cr;
-      $scope.cda = $scope.response[$rootScope.ID].cda;
-      $scope.v_cyclist = $scope.response[$rootScope.ID].v_cyclist;
-      $scope.v_wind = $scope.response[$rootScope.ID].v_wind;
-      //$scope.weight = $scope.response[$scope.name][1];
-      //$scope.length = $scope.response[$scope.name][2];
-      //$scope.friction = $scope.response[$scope.name][7];
-      //$scope.drag = $scope.response[$scope.name][8];
-      //$scope.velocity = $scope.response[$scope.name][10];
-      //$scope.windspeed = $scope.response[$scope.name][9];
-      $scope.profileText = "Edit"
-      $scope.editProfile = true;
-    }
-    
+   
     $scope.addProfile = function(){
       if(!$scope.newProfile){
         $scope.newProfile = true;
@@ -195,7 +221,7 @@
 
     //Check input values in the form before enabling save button
     $scope.checkForm = function(){
-      if($scope.windspeed && $scope.velocity && $scope.drag && $scope.length && $scope.friction && $scope.weight && $scope.name){
+      if($scope.v_wind && $scope.v_cyclist && $scope.cda && $scope.length && $scope.cr && $scope.weight && $scope.name){
         return true;
       } else {
         return false;
@@ -205,7 +231,7 @@
     $scope.save = function(){
       var url = "https://"+location.hostname+":5000/Settings"
       dict = {};
-      dict[$scope.name] = [$scope.ID, $scope.weight, $scope.length, $scope.friction, $scope.drag, $scope.windspeed, $scope.velocity]
+      dict[$scope.name] = [$rootScope.ID, $scope.weight, $scope.length, $scope.cr, $scope.cda, $scope.v_wind, $scope.v_cyclist]
       $http.post(url, dict).
         then(function(data, status, headers, config) {
           console.log("posted settings");
