@@ -1,34 +1,3 @@
-jsonTemp = {
-  "position": [
-    10,
-    20,
-    30
-  ],
-  "energy": [
-    {
-      "name": "totaal",
-      "data": [
-        24,
-        45,
-        60
-      ]
-    },
-    {
-      "name": "rol",
-      "data": [
-        12,
-        34,
-        45
-      ]
-    }
-  ],
-  "altitude": [
-    100,
-    200,
-    250
-  ]
-};
-
 (function(){
   var app = angular.module("renaBike", ["ngRoute", "highcharts-ng", "ngGeolocation"])
 
@@ -172,11 +141,36 @@ jsonTemp = {
     });*/
   });
   
-  app.controller("settingsCtrl", function($rootScope, $scope){
+  app.controller("settingsCtrl", function($rootScope, $scope, $http){
     //closeNav();
+    $scope.request_users = function(){
+      $http.get("https://"+location.hostname+":5000/Settings")
+          .then(function(response) {
+            $scope.response = response.data;
+      }, function errorCallback(response){
+        console.log("ERROR, did you initialize the flask server??");
+      });
+    };
+    $scope.request_users();
     $rootScope.hidden = 1;
     $scope.newProfile = false;
+    $scope.editProfile = false;
     $scope.profileText = "New"
+
+    $scope.update = function(){
+      $scope.request_users();
+      $scope.name = $scope.selectedName;
+      $scope.ID = $scope.response[$scope.name][0];
+      $rootScope.ID = $scope.ID; //global view of the user ID
+      $scope.weight = $scope.response[$scope.name][1];
+      $scope.length = $scope.response[$scope.name][2];
+      $scope.friction = $scope.response[$scope.name][7];
+      $scope.drag = $scope.response[$scope.name][8];
+      $scope.velocity = $scope.response[$scope.name][10];
+      $scope.windspeed = $scope.response[$scope.name][9];
+      $scope.profileText = "Edit"
+      $scope.editProfile = true;
+    }
     
     $scope.addProfile = function(){
       if(!$scope.newProfile){
@@ -184,9 +178,35 @@ jsonTemp = {
         $scope.profileText = "Hide"
       } else {
         $scope.newProfile = false;
-        $scope.profileText = "New"
+        if (!$scope.editProfile){
+          $scope.profileText = "New"
+        } else {
+          $scope.profileText = "Edit";
+        }
       }
     };  
+
+    //Check input values in the form before enabling save button
+    $scope.checkForm = function(){
+      if($scope.windspeed && $scope.velocity && $scope.drag && $scope.length && $scope.friction && $scope.weight && $scope.name){
+        return true;
+      } else {
+        return false;
+      };
+    };
+  
+    $scope.save = function(){
+      var url = "https://"+location.hostname+":5000/Settings"
+      dict = {};
+      dict[$scope.name] = [$scope.ID, $scope.weight, $scope.length, $scope.friction, $scope.drag, $scope.windspeed, $scope.velocity]
+      $http.post(url, dict).
+        then(function(data, status, headers, config) {
+          console.log("posted settings");
+        }, function(data, status, headers, config) {
+          console.log("ERROR IN SENDING USER SETTINGS TO DB");
+        });
+    };
+
   });
   
 })();

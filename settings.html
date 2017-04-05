@@ -3,7 +3,7 @@
     <div class="form-group">
       <label>Profile</label>
       <div class="input-group">
-        <select class="form-control" ng-model="profileID" ng-options="x.id as x.name for x in places"></select>
+        <select class="form-control" ng-model="selectedName" ng-options="k as k for (k,v) in response" ng-change="update()"></select>
         <span class="input-group-btn">
             <button class="btn btn-default" type="button" ng-click="addProfile()">{{profileText}}</button>
         </span>
@@ -32,6 +32,10 @@
     <div class="form-group">
       <label>Average velocity</label>
       <input type="text" ng-model="velocity" name="velocity" class="form-control" placeholder="Velocity " required>
+    </div>
+    <div class="form-group">
+      <label>Wind speed</label>
+      <input type="text" ng-model="windspeed" name="windspeed" class="form-control" placeholder="Wind speed " required>
     </div>
     <hr>
     <button class="btn btn-default btn-block" ng-click="save()" ng-disabled="!checkForm()">Save</button>

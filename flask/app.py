@@ -22,7 +22,6 @@ class Position(Resource):
         self.data_raw = 0
 
     def post(self):
-        print("JAAA")
         print(request.get_json(force=True))
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         #self.data_raw = json.loads(self.data_raw)
@@ -93,7 +92,7 @@ class Weather(Resource):
             Weather.windspeeds.append(float(obj["wspd"]["metric"]))
             Weather.temperatures.append(float(obj["temp"]["metric"]))
             Weather.winddirs.append(float(obj["wdir"]["degrees"]))
-            print(int(obj["FCTTIME"]["epoch"]))
+            #print(int(obj["FCTTIME"]["epoch"]))
             Weather.times.append(int(obj["FCTTIME"]["epoch"]))
         global houres
         houres = self.houres
@@ -175,7 +174,7 @@ class Energy(Resource):
 
     def post(self):
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
-        data_raw = request.get_json(force=True);
+        data_raw = request.get_json(force=True)
         #print(data_raw)
         self.tr.heights = data_raw["heights"]
         self.tr.longitudes = data_raw["lngs"]
@@ -194,32 +193,46 @@ class Energy(Resource):
         return json.dumps(self.energies), 201
 
 class Settings(Resource):
+
     def __init__(self):
-      import sqlite3
-      import os
-      
-      exists = os.path.isfile("data.db")
-      
-      self.conn = sqlite3.connect("data.db")
-      self.cursor = self.conn.cursor()
-     
-      if not exists:
-        self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")   
-      
-    def get(self): #Send all profile settings
-        data = {}
-        for row in self.cursor.execute("SELECT rowid, * FROM profiles;"):
-          data[row[1]] = row
-          
-        return data
-    
-    def put(self): #Save a new profile
-      print "put"
-      
-    def delete(self): #Delete a profile
-      print "delete"
+        import MySQLdb
+        import os
+        exists = os.path.isfile("data.db")
         
-      
+        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+        self.cursor = self.db.cursor()
+        self.data = {}
+
+        
+        if not exists:
+            print("no database: code one")
+            #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")   
+        
+    def get(self): #Send all profile settings
+        self.data = {}
+        self.cursor.execute("SELECT * FROM user_settings")
+        for row in self.cursor.fetchall():
+            self.data[row[1]] = [x for x in row if not (x == row[1]) ] #assigning names to rows in dict ask Rien if this is what he wants
+        return self.data
+
+    def post(self): #Save a new profile
+        data_raw = request.get_json(force=True)
+        self.cursor.execute("SELECT ID FROM eBike.user_settings")
+        a = self.cursor.fetchall()
+        if (data_raw.values()[0][0] in a[0]):
+            self.cursor.execute("UPDATE eBike.user_settings SET Name = '"+str(data_raw.keys()[0])+"', Gewicht = "+str(data_raw.values()[0][1])+", Lengte = "+str(data_raw.values()[0][2])+", Cr = "+str(data_raw.values()[0][3])+", CdA = "+str(data_raw.values()[0][4])+", v_wind = "+str(data_raw.values()[0][5])+", v_fietser = "+str(data_raw.values()[0][6])+" WHERE user_settings.ID = "+str(data_raw.values()[0][0])+";")
+        else:
+            self.cursor.execute("INSERT INTO eBike.user_settings (`ID`, `Name`, `Gewicht`, `Lengte`, `P_k`, `P_lambda`, `v_k`, `v_lambda`, `Cr`, `CdA`, `v_wind`, `v_fietser`) VALUES (NULL,'"+str(data_raw.keys()[0])+"',"+str(data_raw.values()[0][1])+" ,"+str(data_raw.values()[0][2])+" , 0, 0, 0, 0, "+str(data_raw.values()[0][3])+", "+str(data_raw.values()[0][4])+", "+str(data_raw.values()[0][5])+" , "+str(data_raw.values()[0][6])+");")
+        
+        self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw.values()[0][0])+";")
+        self.db.commit()
+        
+        return 201
+
+    def delete(self): #Delete a profile
+        print "delete"
+
+ 
 api.add_resource(Weather, '/Weather')
 api.add_resource(Trajectory, '/Trajectory')
 api.add_resource(Energy, '/Energy')
