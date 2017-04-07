@@ -72,9 +72,14 @@ function mapbox($http, $rootScope, $sce){
         url = "https://"+location.hostname+":5000/Position";
         postionIndicator = navigator.geolocation.watchPosition(function(position) {
         var parameter = {
-          "lat" : position.coords.latitude,
-          "lng" : position.coords.longitude,
-          "acc" : position.coords.accuracy
+          "gps_timestamp" : Date.now(),
+          "gps_lat" : position.coords.latitude,
+          "gps_lng" : position.coords.longitude,
+          "gps_alt" : position.coords.altitude,
+          "gps_pos_acc" : position.coords.accuracy,
+          "gps_alt_acc" : position.coords.altitudeAccuracy,
+          "gps_speed" : position.coords.speed,
+          "gps_heading" : position.coords.heading
         };
         $http.post(url, parameter).
           then(function(data, status, headers, config) {

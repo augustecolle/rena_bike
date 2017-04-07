@@ -82,9 +82,28 @@ class cyclist(object):
         print(str(head_wind_alpha))
         print("BEARING")
         #head_wind_alpha = self.compassbearing - 90
-        #------REMOVE THIS------#
-        head_wind_alpha = 180
-        v_wind = 20/3.6
+        #------REMOVE THIS implemented for the master students testings------#
+        import MySQLdb
+        import os
+        exists = os.path.isfile("data.db")
+        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+        self.cursor = self.db.cursor()
+        if not exists:
+            print("no database: code one")
+
+        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
+        a = self.cursor.fetchall()
+        ID = int(a[0][0])
+        print("JA HIER")
+        print(ID)
+        self.cursor.execute("SELECT v_wind FROM eBike.user_settings WHERE ID = "+str(ID)+";")
+        a = self.cursor.fetchall()
+        print(a)
+        v_wind = int(a[0][0])
+        print("JA HIER")
+        self.cursor.execute("SELECT cr FROM eBike.user_settings WHERE ID = "+str(ID)+";")
+        head_wind_alpha = int(self.cursor.fetchall()[0][0])
+        print("JA HIER")
         ########################
         CdA = self.get_CdA() 
         rho = tr.get_air_density_at_height(self.height)

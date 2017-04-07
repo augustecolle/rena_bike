@@ -126,6 +126,7 @@
   }
   });
 
+
   app.controller("weatherCtrl", function($rootScope, $scope, $http){
     //closeNav();
     $rootScope.hidden = 1;
@@ -141,6 +142,7 @@
     });*/
   });
   
+
   app.controller("settingsCtrl", function($rootScope, $scope, $http){
     //closeNav();
     //
@@ -167,7 +169,7 @@
 
     $scope.update = function(){
       $rootScope.ID = $scope.selectedID;
-      //$scope.selectedID = $scope.userdata[$rootScope.ID].name;
+      $scope.ID = $rootScope.ID;
       $scope.name = $scope.userdata[$rootScope.ID].name;
       $scope.weight = $scope.userdata[$rootScope.ID].weight;
       $scope.length = $scope.userdata[$rootScope.ID].length;
@@ -185,7 +187,8 @@
           console.log("ERROR IN SENDING USER SETTINGS TO DB");
         });
     }
- 
+
+    //create new profile 
     $scope.newPr = function(){
       console.log("new profile");
       $scope.name = "";
@@ -197,6 +200,7 @@
       $scope.cda = 0;
       $scope.v_cyclist = 0;
       $scope.v_wind = 0;
+      $scope.ID = -1;
     }
    
     $scope.request_lastID();
@@ -231,7 +235,7 @@
     $scope.save = function(){
       var url = "https://"+location.hostname+":5000/Settings"
       dict = {};
-      dict[$scope.name] = [$rootScope.ID, $scope.weight, $scope.length, $scope.cr, $scope.cda, $scope.v_wind, $scope.v_cyclist]
+      dict[$scope.name] = [$scope.ID, $scope.weight, $scope.length, $scope.cr, $scope.cda, $scope.v_wind, $scope.v_cyclist]
       $http.post(url, dict).
         then(function(data, status, headers, config) {
           console.log("posted settings");

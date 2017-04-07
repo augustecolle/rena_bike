@@ -16,16 +16,30 @@ houres = None
 class Position(Resource):
 
     def __init__(self):
+        import MySQLdb
+        import os
+        exists = os.path.isfile("data.db")
+        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+        self.cursor = self.db.cursor()
+        if not exists:
+            print("no database: code one")
+            #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
+
         self.lng = 0
         self.lat = 0
         self.acc = 0
         self.data_raw = 0
 
     def post(self):
-        print(request.get_json(force=True))
-        #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
-        #self.data_raw = json.loads(self.data_raw)
-        #print(self.data_raw)
+        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
+        a = self.cursor.fetchall()
+        ID = int(a[0][0])
+        self.data_raw = request.get_json(force=True)
+        for (key, value) in self.data_raw.iteritems():
+            if (value == None):
+                self.data_raw[key] = -1
+        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `trajectory_slope`, `clearness_index`, `bicycle_heading`) VALUES ("+str(ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1, -1, -1, -1, -1, -1);")
+        self.db.commit()
         return 201
 
     def get(self):
@@ -164,6 +178,15 @@ class Energy(Resource):
     def __init__(self):
         from libraries import trajectory as tr
         from libraries import cyclist as cl
+        import MySQLdb
+        import os
+        exists = os.path.isfile("data.db")
+        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+        self.cursor = self.db.cursor()
+        if not exists:
+            print("no database: code one")
+            #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
+
         self.tr = tr.traject()
         self.cl = cl.cyclist()
         global houres
@@ -187,7 +210,12 @@ class Energy(Resource):
         self.tr.get_distances()
         self.tr.get_compass_bearing()
         self.tr.get_slopes()
-        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=30)
+        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
+        a = self.cursor.fetchall()
+        ID = int(a[0][0])
+        self.cursor.execute("SELECT v_cyclist FROM user_settings WHERE ID = "+str(ID)+";")
+        v_cyclist = int(self.cursor.fetchall()[0][0])
+        self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=v_cyclist)
         #print(self.energies)
         #print(self.data_raw)
         return json.dumps(self.energies), 201
@@ -221,12 +249,19 @@ class Settings(Resource):
         a = self.cursor.fetchall()
         if (int(data_raw.values()[0][0]) in [x[0] for x in a]):
             self.cursor.execute("UPDATE eBike.user_settings SET name = '"+str(data_raw.keys()[0])+"', weight = "+str(data_raw.values()[0][1])+", length = "+str(data_raw.values()[0][2])+", cr = "+str(data_raw.values()[0][3])+", cda = "+str(data_raw.values()[0][4])+", v_wind = "+str(data_raw.values()[0][5])+", v_cyclist = "+str(data_raw.values()[0][6])+" WHERE user_settings.ID = "+str(data_raw.values()[0][0])+";")
+            self.db.commit()
+            self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw.values()[0][0])+";")
         else:
             self.cursor.execute("INSERT INTO eBike.user_settings (`ID`, `name`, `weight`, `length`, `P_k`, `P_lambda`, `v_k`, `v_lambda`, `cr`, `cda`, `v_wind`, `v_cyclist`) VALUES (NULL,'"+str(data_raw.keys()[0])+"',"+str(data_raw.values()[0][1])+" ,"+str(data_raw.values()[0][2])+" , 0, 0, 0, 0, "+str(data_raw.values()[0][3])+", "+str(data_raw.values()[0][4])+", "+str(data_raw.values()[0][5])+" , "+str(data_raw.values()[0][6])+");")
+            self.db.commit()
+            self.cursor.execute("SELECT ID FROM eBike.user_settings")
+            a = self.cursor.fetchall()
+            self.db.commit()
+            self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(max(a)[0])+";")
+            print("max a")
+            print(max(a))
 
         self.db.commit()
-        self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw.values()[0][0])+";")
-
         return 201
 
     def delete(self): #Delete a profile
@@ -263,6 +298,7 @@ api.add_resource(Energy, '/Energy')
 api.add_resource(Settings, '/Settings')
 api.add_resource(Position, '/Position')
 api.add_resource(globalSettings, '/globalSettings')
+
 #appble CORS (cross origin requests), from: http://coalkids.github.io/flask-cors.html
 @app.before_request
 def option_autoreply():
