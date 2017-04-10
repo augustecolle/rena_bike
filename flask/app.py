@@ -38,7 +38,12 @@ class Position(Resource):
         for (key, value) in self.data_raw.iteritems():
             if (value == None):
                 self.data_raw[key] = -1
-        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `trajectory_slope`, `clearness_index`, `bicycle_heading`) VALUES ("+str(ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1, -1, -1, -1, -1, -1);")
+        self.cursor.execute("SELECT MAX(traject_ID) FROM eBike.user_settings WHERE ID = "+str(ID)+";")
+        a = self.cursor.fetchall()
+        print("Traject ID")
+        print(a)
+        traject_ID = a[0][0]
+        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `traject_ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `trajectory_slope`, `clearness_index`, `bicycle_heading`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1, -1, -1, -1, -1, -1);")
         self.db.commit()
         return 201
 
@@ -116,6 +121,15 @@ class Weather(Resource):
 class Trajectory(Resource):
     from libraries import trajectory as tr
     def __init__(self):
+        import MySQLdb
+        import os
+        exists = os.path.isfile("data.db")
+        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+        self.cursor = self.db.cursor()
+        if not exists:
+            print("no database: code one")
+            #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
+
         self.data_raw = None
         self.steps_raw = None
         self.lats = []
@@ -141,8 +155,8 @@ class Trajectory(Resource):
             self.longs.append(obj['maneuver']['location']['coordinates'][0]) 
             self.cycletimes.append(obj['duration'])
             self.bearingsFromMapbox.append(obj['heading'])
-            print("BEARING FROM MAPBOX")
-            print(obj['heading'])
+            #print("BEARING FROM MAPBOX")
+            #print(obj['heading'])
             #self.heading.append(obj['heading'])
             #self.distances.append(obj['distance'])
         #formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
@@ -198,7 +212,8 @@ class Energy(Resource):
     def post(self):
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         data_raw = request.get_json(force=True)
-        #print(data_raw)
+        print("POST ENERGY DEBUGGING")
+        print(data_raw)
         self.tr.heights = data_raw["heights"]
         self.tr.longitudes = data_raw["lngs"]
         self.tr.latitudes = data_raw["lats"]
@@ -218,6 +233,20 @@ class Energy(Resource):
         self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=v_cyclist)
         #print(self.energies)
         #print(self.data_raw)
+        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
+        a = self.cursor.fetchall()
+        ID = int(a[0][0])
+        self.cursor.execute("SELECT MAX(traject_ID) FROM eBike.user_settings WHERE ID = "+str(ID)+";")
+        a = self.cursor.fetchall()
+        traject_ID = int(a[0][0]) + 1
+        self.cursor.execute("UPDATE eBike.user_settings SET traject_ID = "+str(traject_ID)+" WHERE ID = "+str(ID)+";")
+        self.db.commit()
+        temp = self.tr.avg_slopes
+        temp.append(0)
+        for lat, lng, heading, height, slope in zip(self.tr.latitudes, self.tr.longitudes, self.tr.bearingsFromMapbox, self.tr.heights, temp):
+            self.cursor.execute("INSERT INTO eBike.predictions (`ID`, `traject_ID`, `latitude`, `longitude`, `heading`, `height`, `slope`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(lat)+" ,"+str(lng)+", "+str(heading)+", "+str(height)+", "+str(slope)+");")
+        self.db.commit()
+
         return json.dumps(self.energies), 201
 
 class Settings(Resource):

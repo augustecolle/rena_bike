@@ -70,17 +70,17 @@ class cyclist(object):
         orderedHoures = trajectory.weather.keys()
         orderedHoures.sort()
         index = int(trajectory.cycletimescum[i]/3600.0)
-        print(index)
+        #print(index)
         v_wind = float(trajectory.weather[orderedHoures[index]]['windspeed']) #already in m/s
-        print("VWIND: ")
-        print(str(v_wind))
+        #print("VWIND: ")
+        #print(str(v_wind))
         #head_wind_alpha = self.compassbearing - (trajectory.weather[orderedHoures[index]]['winddir'])
-        print("BEARINGS: ")
-        print(str(trajectory.weather[orderedHoures[index]]['winddir']) + "\t" + str(trajectory.bearingsFromMapbox[i]))
+        #print("BEARINGS: ")
+        #print(str(trajectory.weather[orderedHoures[index]]['winddir']) + "\t" + str(trajectory.bearingsFromMapbox[i]))
         head_wind_alpha = trajectory.bearingsFromMapbox[i] - (trajectory.weather[orderedHoures[index]]['winddir'])
-        print("HEAD WIND")
-        print(str(head_wind_alpha))
-        print("BEARING")
+        #print("HEAD WIND")
+        #print(str(head_wind_alpha))
+        #print("BEARING")
         #head_wind_alpha = self.compassbearing - 90
         #------REMOVE THIS implemented for the master students testings------#
         import MySQLdb
@@ -94,22 +94,18 @@ class cyclist(object):
         self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
         a = self.cursor.fetchall()
         ID = int(a[0][0])
-        print("JA HIER")
-        print(ID)
         self.cursor.execute("SELECT v_wind FROM eBike.user_settings WHERE ID = "+str(ID)+";")
         a = self.cursor.fetchall()
-        print(a)
         v_wind = int(a[0][0])
-        print("JA HIER")
         self.cursor.execute("SELECT cr FROM eBike.user_settings WHERE ID = "+str(ID)+";")
         head_wind_alpha = int(self.cursor.fetchall()[0][0])
-        print("JA HIER")
         ########################
         CdA = self.get_CdA() 
         rho = tr.get_air_density_at_height(self.height)
         P_wind = 0.5*rho*CdA*self.velocity*\
                 (self.velocity**2 + v_wind**2 - 2*self.velocity*v_wind*np.cos(head_wind_alpha*np.pi/180))\
                 *np.cos(np.arctan(v_wind*np.sin(head_wind_alpha*np.pi/180)/(self.velocity + (v_wind*np.cos(head_wind_alpha*np.pi/180))))) #From the thesis of Guylian Stevens
+        #print("completed wind power calculation")
         return P_wind
 
     def get_Prol(self, Crol = None):

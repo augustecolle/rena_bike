@@ -46,7 +46,7 @@ function mapbox($http, $rootScope, $sce){
     //set center on current location with HTML5
      var options = {
         enableHighAccuracy: true,
-        timeout: 5000,
+        timeout: 60000,
           maximumAge: 0
     };
     if (navigator.geolocation) {
@@ -61,15 +61,15 @@ function mapbox($http, $rootScope, $sce){
         $rootScope.latitude = position.coords.latitude;
         $rootScope.longitude = position.coords.longitude;
         $rootScope.getWeather();
-        startPositionWatch();
         //$rootScope.startWeatherWatch(1); //weather get interval in minutes
         
       }, function(error){
         console.log("Error loading position: " + error);
-      }, {timeout:10000});
+        console.log(error);
+      }, {timeout:60000});
 
       startPositionWatch = function(){
-        url = "https://"+location.hostname+":5000/Position";
+        urll = "https://"+location.hostname+":5000/Position";
         postionIndicator = navigator.geolocation.watchPosition(function(position) {
         var parameter = {
           "gps_timestamp" : Date.now(),
@@ -81,7 +81,7 @@ function mapbox($http, $rootScope, $sce){
           "gps_speed" : position.coords.speed,
           "gps_heading" : position.coords.heading
         };
-        $http.post(url, parameter).
+        $http.post(urll, parameter).
           then(function(data, status, headers, config) {
             console.log("posted postion");
           }, function(data, status, headers, config) {
@@ -114,6 +114,7 @@ function mapbox($http, $rootScope, $sce){
   });
 
   directions.on('route', function(e) {
+    startPositionWatch();
     var parameter = e.route;
     url = "https://"+location.hostname+":5000/Trajectory"
     console.log(parameter)
@@ -181,6 +182,7 @@ function mapbox($http, $rootScope, $sce){
         //.screenshot('homepage.png');
       },
       function(data, status, headers, config) {
+        console.log("ENERGIE ERROR");
         // called asynchronously if an error occurs
         // or server returns response with an error status.
       });

@@ -27,6 +27,8 @@
       $http({method: "GET", url: "https://api.wunderground.com/api/" + apikey + "/hourly10day/q/" + $rootScope.latitude + "," + $rootScope.longitude + ".json"})
         .then(function successCallback(response) {
           $rootScope.weather = response["data"];
+          console.log(location.hostname);
+          console.log(response);
           var url = "https://"+location.hostname+":5000/Weather"
           $http.post(url, $rootScope.weather).
             then(function(data, status, headers, config) {
