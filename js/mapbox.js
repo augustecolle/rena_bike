@@ -126,6 +126,7 @@ function mapbox($http, $rootScope, $sce){
         $rootScope.routeLongs = [];
         $rootScope.cycletimes = [];
         $rootScope.cycletimescum = [];
+        $rootScope.bearingsFromMapbox = [];
         for (var i = 0; i < data.data.length; i++){
           $rootScope.routeLats.push(data.data[i].lat);
           $rootScope.routeLongs.push(data.data[i].lng);

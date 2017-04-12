@@ -71,41 +71,28 @@ class cyclist(object):
         orderedHoures.sort()
         index = int(trajectory.cycletimescum[i]/3600.0)
         #print(index)
-        v_wind = float(trajectory.weather[orderedHoures[index]]['windspeed']) #already in m/s
-        #print("VWIND: ")
-        #print(str(v_wind))
+        v_wind = float(trajectory.weather[orderedHoures[index]]['windspeed'])/3.6 
         #head_wind_alpha = self.compassbearing - (trajectory.weather[orderedHoures[index]]['winddir'])
         #print("BEARINGS: ")
-        #print(str(trajectory.weather[orderedHoures[index]]['winddir']) + "\t" + str(trajectory.bearingsFromMapbox[i]))
-        head_wind_alpha = trajectory.bearingsFromMapbox[i] - (trajectory.weather[orderedHoures[index]]['winddir'])
-        #print("HEAD WIND")
-        #print(str(head_wind_alpha))
-        #print("BEARING")
-        #head_wind_alpha = self.compassbearing - 90
-        #------REMOVE THIS implemented for the master students testings------#
-        import MySQLdb
-        import os
-        exists = os.path.isfile("data.db")
-        self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
-        self.cursor = self.db.cursor()
-        if not exists:
-            print("no database: code one")
+        #print(str(360 - trajectory.weather[orderedHoures[index]]['winddir']) + "\t" + str(trajectory.bearingsFromMapbox[i]))
 
-        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
-        a = self.cursor.fetchall()
-        ID = int(a[0][0])
-        self.cursor.execute("SELECT v_wind FROM eBike.user_settings WHERE ID = "+str(ID)+";")
-        a = self.cursor.fetchall()
-        v_wind = int(a[0][0])
-        self.cursor.execute("SELECT cr FROM eBike.user_settings WHERE ID = "+str(ID)+";")
-        head_wind_alpha = int(self.cursor.fetchall()[0][0])
-        ########################
+        #reorientate with reference to x-axis as 0 degrees counterclockwise
+        alpha = ((trajectory.weather[orderedHoures[index]]['winddir']) - 180)
+        beta = 450 - trajectory.bearingsFromMapbox[i] 
+        import numpy as np
+        alpha = (90 - alpha)*np.pi/180.0
+        beta = beta*np.pi/180.0
         CdA = self.get_CdA() 
         rho = tr.get_air_density_at_height(self.height)
-        P_wind = 0.5*rho*CdA*self.velocity*\
-                (self.velocity**2 + v_wind**2 - 2*self.velocity*v_wind*np.cos(head_wind_alpha*np.pi/180))\
-                *np.cos(np.arctan(v_wind*np.sin(head_wind_alpha*np.pi/180)/(self.velocity + (v_wind*np.cos(head_wind_alpha*np.pi/180))))) #From the thesis of Guylian Stevens
-        #print("completed wind power calculation")
+        v_w = np.array([v_wind*np.cos(alpha), v_wind*np.sin(alpha)])
+        v_f = np.array([self.velocity*np.cos(beta), self.velocity*np.sin(beta)])
+        v_weq = v_w - v_f
+        v_weq_mag = np.sqrt(v_weq[0]**2 + v_weq[1]**2)
+        gamma = np.arctan2(v_weq[1], v_weq[0])
+        #http://stackoverflow.com/questions/2827393/angles-between-two-n-dimensional-vectors-in-python/13849249#13849249
+        P_wind = -0.5*rho*CdA*self.velocity*v_weq_mag**2\
+                *np.cos(np.arccos(np.clip(np.dot(v_f/np.linalg.norm(v_f), v_weq/np.linalg.norm(v_weq)), -1.0, 1.0)))
+
         return P_wind
 
     def get_Prol(self, Crol = None):

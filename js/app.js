@@ -32,6 +32,14 @@
           var url = "https://"+location.hostname+":5000/Weather"
           $http.post(url, $rootScope.weather).
             then(function(data, status, headers, config) {
+              $http.get("https://"+location.hostname+":5000/Weather").
+                then(function(response) {
+                  $rootScope.treated_weather = response.data;
+                  console.log(response.data);
+                  console.log("Treated data");
+                }, function errorCallback(response){
+                  console.log("Error on treating data");  
+                });
               console.log("Wheater post");
             }, function(data, status, headers, config) {
               console.log("weather error");
@@ -39,15 +47,6 @@
           }, function errorCallback(response) {
           alert("Weather isn't available");
       });
-      $http.get("https://"+location.hostname+":5000/Weather").
-        then(function(response) {
-          $rootScope.treated_weather = response.data;
-          console.log(response.data);
-          console.log("Treated data");
-        }, function errorCallback(response){
-          console.log("Error on treating data");  
-        });
-
     }
     
     $rootScope.startWeatherWatch = function(intervalTime) { //intervalTime in minutes
@@ -175,10 +174,11 @@
       $scope.name = $scope.userdata[$rootScope.ID].name;
       $scope.weight = $scope.userdata[$rootScope.ID].weight;
       $scope.length = $scope.userdata[$rootScope.ID].length;
+      $scope.crr = $scope.userdata[$rootScope.ID].cr;
       $scope.cr = $scope.userdata[$rootScope.ID].cr;
+      $scope.cdaa = $scope.userdata[$rootScope.ID].cda;
       $scope.cda = $scope.userdata[$rootScope.ID].cda;
       $scope.v_cyclist = $scope.userdata[$rootScope.ID].v_cyclist;
-      $scope.v_wind = $scope.userdata[$rootScope.ID].v_wind;
       $scope.profileText = "Edit"
       $scope.editProfile = true;
       var url = "https://"+location.hostname+":5000/globalSettings";
@@ -193,15 +193,16 @@
     //create new profile 
     $scope.newPr = function(){
       console.log("new profile");
-      $scope.name = "";
+      $scope.name = null;
       $scope.profileText = "Edit";
       $scope.newProfile = true;
-      $scope.weight = 0;
-      $scope.length = 0;
-      $scope.cr = 0;
-      $scope.cda = 0;
-      $scope.v_cyclist = 0;
-      $scope.v_wind = 0;
+      $scope.weight = null;
+      $scope.length = null;
+      $scope.crr = null;
+      $scope.cr = 0.01;
+      $scope.cdaa = null;
+      $scope.cda = 0.6;
+      $scope.v_cyclist = null;
       $scope.ID = -1;
     }
    
@@ -227,7 +228,7 @@
 
     //Check input values in the form before enabling save button
     $scope.checkForm = function(){
-      if($scope.v_wind && $scope.v_cyclist && $scope.cda && $scope.length && $scope.cr && $scope.weight && $scope.name){
+      if($scope.v_cyclist && $scope.length && $scope.weight && $scope.name){
         return true;
       } else {
         return false;
@@ -237,7 +238,7 @@
     $scope.save = function(){
       var url = "https://"+location.hostname+":5000/Settings"
       dict = {};
-      dict[$scope.name] = [$scope.ID, $scope.weight, $scope.length, $scope.cr, $scope.cda, $scope.v_wind, $scope.v_cyclist]
+      dict[$scope.name] = [$scope.ID, $scope.weight, $scope.length, $scope.cr, $scope.cda, $scope.v_cyclist]
       $http.post(url, dict).
         then(function(data, status, headers, config) {
           console.log("posted settings");

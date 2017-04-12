@@ -127,7 +127,8 @@ class traject(object):
         if deltax == None: deltax = self.deltax
         #we need difference in height for two points since we want the slope between these points
         height_diff = np.array([(self.heights[x] - self.heights[x-1]) for x in range(1, len(self.heights))]) 
-        slopes = [y/x*100 for y,x in zip(height_diff, self.distances)] #calculate slope in percentages
+        print(height_diff)
+        slopes = [y/x for y,x in zip(height_diff, self.distances)] #calculate slope
         #print(max(slopes), min(slopes)) #check maxima
         cum_distances = np.cumsum(self.distances)
         slope_index = cum_distances*1.0/deltax #slope index for advancing slope_avg_distance
@@ -135,7 +136,16 @@ class traject(object):
         x = cum_distances
         y = np.cumsum(height_diff)
         #determining smoothing factor according to the docs: (m - sqrt(2*m)) * std**2 <= s <= (m + sqrt(2*m)) * std**2 but this gives an horrible over smoothing so I am choosing my own
-        tck = interpolate.splrep(x, y, s=30) #used to be 40 for the profile with loads of data
+        #if only three points are provided, calculate a cubic spline
+        if (len(x) == 3):
+            print("order = 2")
+            order = 2
+        elif (len(x) > 3):
+            order = 3
+        else:
+            self.avg_slopes = [slopes[0]]
+            return slopes
+        tck = interpolate.splrep(x, y, s=30, k=order) #used to be 40 for the profile with loads of data
         xnew = np.arange(0, cum_distances[-1], deltax)
         self.heights_c = interpolate.splev(xnew, tck, der=0)
         self.slopes =  interpolate.splev(xnew, tck, der=1)

@@ -18,6 +18,9 @@ class Position(Resource):
     def __init__(self):
         import MySQLdb
         import os
+        import urllib2
+        import ssl
+        import json
         exists = os.path.isfile("data.db")
         self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
         self.cursor = self.db.cursor()
@@ -25,12 +28,30 @@ class Position(Resource):
             print("no database: code one")
             #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
 
+        #for self signed certificate problems evasion see http://stackoverflow.com/questions/19268548/python-ignore-certicate-validation-urllib2
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        temp = urllib2.urlopen("https://10.128.16.14:5000/Weather", context=ctx)
+        temp = temp.readlines()
+        temp = json.loads(temp[0])
+        self.sky = temp['plotdata'][0]['data']
+        self.windspeed = temp['plotdata'][3]['data']
+        self.winddir = temp['plotdata'][2]['data']
+        self.times = temp['time']
         self.lng = 0
         self.lat = 0
         self.acc = 0
         self.data_raw = 0
 
     def post(self):
+        import time as tm
+        now = np.round(tm.time())
+        idx = np.searchsorted(self.times, now, side="left")
+        if idx > 0 and (idx == len(self.times) or math.fabs(now - self.times[idx-1]) < math.fabs(now - self.times[idx])):
+            idx = idx-1
+        else:
+            idx = idx
         self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
         a = self.cursor.fetchall()
         ID = int(a[0][0])
@@ -40,10 +61,8 @@ class Position(Resource):
                 self.data_raw[key] = -1
         self.cursor.execute("SELECT MAX(traject_ID) FROM eBike.user_settings WHERE ID = "+str(ID)+";")
         a = self.cursor.fetchall()
-        print("Traject ID")
-        print(a)
         traject_ID = a[0][0]
-        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `traject_ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `trajectory_slope`, `clearness_index`, `bicycle_heading`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1, -1, -1, -1, -1, -1);")
+        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `traject_ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `clearness_index`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1,"+str(self.windspeed[idx]/3.6)+", "+str(self.winddir[idx])+", "+str(self.sky[idx])+");")
         self.db.commit()
         return 201
 
@@ -54,6 +73,7 @@ class Position(Resource):
 
 class Weather(Resource):
     from libraries import weather as wh
+    import numpy as np
     sky = []
     windspeeds = []
     temperatures = []
@@ -69,6 +89,8 @@ class Weather(Resource):
         self.houres = {}
 
     def get(self):
+        
+        #return [sky[idx], windspeeds[x], winddirs[idx]]
         #print(self.times)
         #print("self.times")
         temp = {'plotdata':[
@@ -212,14 +234,12 @@ class Energy(Resource):
     def post(self):
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         data_raw = request.get_json(force=True)
-        print("POST ENERGY DEBUGGING")
-        print(data_raw)
         self.tr.heights = data_raw["heights"]
         self.tr.longitudes = data_raw["lngs"]
         self.tr.latitudes = data_raw["lats"]
+        #print("BEARINGS FROM MAPBOX")
+        #print(data_raw["bearingsFromMapbox"])
         self.tr.bearingsFromMapbox = data_raw["bearingsFromMapbox"]
-        print("BEARINGS IN ENERGY")
-        print(str(self.tr.bearingsFromMapbox))
         self.tr.cycletimes = data_raw["cycletimes"]
         self.tr.cycletimescum = (np.cumsum(self.tr.cycletimes)).tolist()
         self.tr.get_distances()
@@ -230,9 +250,9 @@ class Energy(Resource):
         ID = int(a[0][0])
         self.cursor.execute("SELECT v_cyclist FROM user_settings WHERE ID = "+str(ID)+";")
         v_cyclist = int(self.cursor.fetchall()[0][0])
+        print("SNELHEID BRAM")
+        print(v_cyclist)
         self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=v_cyclist)
-        #print(self.energies)
-        #print(self.data_raw)
         self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
         a = self.cursor.fetchall()
         ID = int(a[0][0])
@@ -277,18 +297,16 @@ class Settings(Resource):
         self.cursor.execute("SELECT ID FROM eBike.user_settings")
         a = self.cursor.fetchall()
         if (int(data_raw.values()[0][0]) in [x[0] for x in a]):
-            self.cursor.execute("UPDATE eBike.user_settings SET name = '"+str(data_raw.keys()[0])+"', weight = "+str(data_raw.values()[0][1])+", length = "+str(data_raw.values()[0][2])+", cr = "+str(data_raw.values()[0][3])+", cda = "+str(data_raw.values()[0][4])+", v_wind = "+str(data_raw.values()[0][5])+", v_cyclist = "+str(data_raw.values()[0][6])+" WHERE user_settings.ID = "+str(data_raw.values()[0][0])+";")
+            self.cursor.execute("UPDATE eBike.user_settings SET name = '"+str(data_raw.keys()[0])+"', weight = "+str(data_raw.values()[0][1])+", length = "+str(data_raw.values()[0][2])+", cr = "+str(data_raw.values()[0][3])+", cda = "+str(data_raw.values()[0][4])+", v_cyclist = "+str(data_raw.values()[0][5])+" WHERE user_settings.ID = "+str(data_raw.values()[0][0])+";")
             self.db.commit()
             self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw.values()[0][0])+";")
         else:
-            self.cursor.execute("INSERT INTO eBike.user_settings (`ID`, `name`, `weight`, `length`, `P_k`, `P_lambda`, `v_k`, `v_lambda`, `cr`, `cda`, `v_wind`, `v_cyclist`) VALUES (NULL,'"+str(data_raw.keys()[0])+"',"+str(data_raw.values()[0][1])+" ,"+str(data_raw.values()[0][2])+" , 0, 0, 0, 0, "+str(data_raw.values()[0][3])+", "+str(data_raw.values()[0][4])+", "+str(data_raw.values()[0][5])+" , "+str(data_raw.values()[0][6])+");")
+            self.cursor.execute("INSERT INTO eBike.user_settings (`ID`, `name`, `weight`, `length`, `P_k`, `P_lambda`, `v_k`, `v_lambda`, `cr`, `cda`, `v_cyclist`) VALUES (NULL,'"+str(data_raw.keys()[0])+"',"+str(data_raw.values()[0][1])+" ,"+str(data_raw.values()[0][2])+" , 0, 0, 0, 0, "+str(data_raw.values()[0][3])+", "+str(data_raw.values()[0][4])+", "+str(data_raw.values()[0][5])+");")
             self.db.commit()
             self.cursor.execute("SELECT ID FROM eBike.user_settings")
             a = self.cursor.fetchall()
             self.db.commit()
             self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(max(a)[0])+";")
-            print("max a")
-            print(max(a))
 
         self.db.commit()
         return 201
@@ -315,7 +333,6 @@ class globalSettings(Resource):
 
     def post(self):
         data_raw = request.get_json(force=True)
-        print(data_raw)
         self.cursor.execute("UPDATE eBike.global_settings SET last_user_ID = "+str(data_raw)+";")
         self.db.commit()
         return 201
