@@ -2,7 +2,7 @@
 //var rider;
 //var map;
 
-function mapbox($http, $rootScope, $sce){
+function mapbox($http, $rootScope, $sce, $interval){
   mapboxgl.accessToken = 'pk.eyJ1IjoiYXVndXN0ZWNvbGxlIiwiYSI6ImNpeHE5b2p3YjAwMjgzM3AxYW11YTdqcm8ifQ.rWupKvdQ1UV6q4xJCBGKUw';
 
   var pos;
@@ -164,23 +164,6 @@ function mapbox($http, $rootScope, $sce){
               console.log("Error");
             });
         }
-         //console.log(url)
-        //$sce.trustAsResourceUrl(url);
-        //
-        //$http.jsonp(url, {jsonpCallbackParam:'callback'})
-        //    .then(function(data){
-        //        console.log(data.found);
-        //   });
-        //var Nightmare = require('nightmare');       
-        //var nightmare = Nightmare({ show: true });
-        //var gpsv = new Nightmare({
-        //  waitTimeout: 5000
-        //})
-        //.viewport(1000,1000)
-        //.useragent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36")
-        //.goto("http://www.gpsvisualizer.com/convert_input")
-        //.wait()
-        //.screenshot('homepage.png');
       },
       function(data, status, headers, config) {
         console.log("ENERGIE ERROR");
@@ -188,6 +171,28 @@ function mapbox($http, $rootScope, $sce){
         // or server returns response with an error status.
       });
 		//console.log(e.route); // Logs the current route shown in the interface.
+
+    var updateEnergies = function(){
+      var url = "https://"+location.hostname+":5000/Energy";
+      var param = {"lats" : $rootScope.routeLats,
+                   "lngs" : $rootScope.routeLongs,
+                   "heights" : $rootScope.routeHeights,
+                   "cycletimes" : $rootScope.cycletimes,
+                   "weather" : $rootScope.weather["hourly_forecast"],
+                   "bearingsFromMapbox": $rootScope.bearingsFromMapbox
+                  };
+      $http.post(url, param).
+        then(function(data, status, headers, config){
+          //console.log("Success");
+          $rootScope.energies = JSON.parse(data.data);
+          //console.log("ENERGIES");
+          //console.log($rootScope.energies);
+        }, function(data, status, headers, config) {
+          console.log("Error");
+      });
+  };
+  $interval(updateEnergies, 1000*60*5); //recalculate energies every 5 minutes (in [ms])
+
 	});
 
 	//change rider figure to zoom level

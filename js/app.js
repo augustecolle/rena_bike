@@ -17,7 +17,7 @@
     $rootScope.hidden = 0;
     $rootScope.tabs = [false, false, false, false];
     autoResizeDiv($rootScope);
-    mapbox($http, $rootScope, $sce);
+    mapbox($http, $rootScope, $sce, $interval);
     window.onresize = function(){
       autoResizeDiv($rootScope);
     }
