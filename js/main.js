@@ -2,6 +2,7 @@
 function getAbsoluteHeight(el) {
   // Get the DOM Node if you pass in a string
   el = (typeof el === 'string') ? document.querySelector(el) : el;
+  //console.log(el);
   var styles = window.getComputedStyle(el);
   var margin = parseFloat(styles['marginTop']) +
                parseFloat(styles['marginBottom']);
@@ -11,12 +12,12 @@ function getAbsoluteHeight(el) {
 //if(navigator.userAgent.indexOf("Firefox")<0) alert("Only Firefox is supported!");
 
 function autoResizeDiv($rootScope){
-  console.log("resizing");
+  //console.log("resizing");
   if (document.getElementById("mapAng")) {
     document.getElementById("mapAng").style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
-    console.log("resized mapAng");
+    //console.log("resized mapAng");
   } else if ($rootScope.tabs[0]) {
-    console.log("graph1");
+    //console.log("graph1");
     var w = window,
         d = document,
         e = d.documentElement,
@@ -75,8 +76,8 @@ function autoResizeDiv($rootScope){
   $rootScope.$broadcast('highchartsng.reflow');
   document.getElementById("graph1").style.height = y + 'px';
   } else if ($rootScope.tabs[1]) {
-    console.log("graph2");
-  console.log("lengths");
+    //console.log("graph2");
+  //console.log("lengths");
   var tempArray = [0].concat($rootScope.energies["position"]);
   var w = window,
       d = document,
@@ -85,7 +86,7 @@ function autoResizeDiv($rootScope){
       x = w.innerWidth || e.clientWidth || g.clientWidth,
       y = w.innerHeight|| e.clientHeight|| g.clientHeight;
   y = y - document.getElementById('header').offsetHeight - getAbsoluteHeight(document.getElementById('tabHeadStatistics'));
-    console.log($rootScope);
+    //console.log($rootScope);
 
     $rootScope.chart2Config = new Highcharts.Chart({
       chart: {
@@ -156,7 +157,7 @@ function autoResizeDiv($rootScope){
     $rootScope.chart3Config = new Highcharts.Chart({
       chart: {
         renderTo: 'graph3',
-        type: 'line',
+        type: 'column',
         zoomType: 'xy',
         animation: true,
         width: x,
@@ -247,13 +248,12 @@ function autoResizeDiv($rootScope){
   $rootScope.$broadcast('highchartsng.reflow');
   document.getElementById("graph4").style.height = y + 'px';
 
-
   } else if (document.getElementById("map")) {
-  console.log("map resized");
+  //console.log("map resized");
     document.getElementById('map').style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
-    console.log("resized map");
+    //console.log("resized map");
   } else {
-    console.log("nothing to resize");
+    //console.log("nothing to resize");
   }
 }
 

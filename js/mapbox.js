@@ -83,7 +83,7 @@ function mapbox($http, $rootScope, $sce){
         };
         $http.post(urll, parameter).
           then(function(data, status, headers, config) {
-            console.log("posted postion");
+            //console.log("posted postion");
           }, function(data, status, headers, config) {
               console.log("Error");
           });
@@ -91,7 +91,7 @@ function mapbox($http, $rootScope, $sce){
           $rootScope.latitude = position.coords.latitude;
           $rootScope.longitude = position.coords.longitude;
           $rootScope.accuracy = position.coords.accuracy; //in meters
-          console.log($rootScope.accuracy);
+          //console.log($rootScope.accuracy);
 
         }, function(error){
           console.log("Error loading position: " + error);
@@ -117,7 +117,7 @@ function mapbox($http, $rootScope, $sce){
     startPositionWatch();
     var parameter = e.route;
     url = "https://"+location.hostname+":5000/Trajectory"
-    console.log(parameter)
+    //console.log(parameter)
     $http.post(url, parameter).
       then(function(data, status, headers, config) {
         // this callback will be called asynchronously
@@ -156,10 +156,10 @@ function mapbox($http, $rootScope, $sce){
                       };
           $http.post(url, param).
             then(function(data, status, headers, config){
-              console.log("Success");
+              //console.log("Success");
               $rootScope.energies = JSON.parse(data.data);
-              console.log("ENERGIES");
-              console.log($rootScope.energies);
+              //console.log("ENERGIES");
+              //console.log($rootScope.energies);
             }, function(data, status, headers, config) {
               console.log("Error");
             });

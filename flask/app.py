@@ -6,12 +6,15 @@ import numpy as np
 import re
 import mechanize
 import socket
+import numpy as np
 
 app = Flask(__name__)
 api = Api(app)
 
 global houres
 houres = None
+
+position = []
 
 class Position(Resource):
 
@@ -64,12 +67,12 @@ class Position(Resource):
         traject_ID = a[0][0]
         self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `traject_ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `clearness_index`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1,"+str(self.windspeed[idx]/3.6)+", "+str(self.winddir[idx])+", "+str(self.sky[idx])+");")
         self.db.commit()
+        global position
+        position = [self.data_raw['gps_lat'], self.data_raw['gps_lng']]
         return 201
 
     def get(self):
         return json.dumps(self.data_raw)
-
-
 
 class Weather(Resource):
     from libraries import weather as wh
@@ -177,15 +180,8 @@ class Trajectory(Resource):
             self.longs.append(obj['maneuver']['location']['coordinates'][0]) 
             self.cycletimes.append(obj['duration'])
             self.bearingsFromMapbox.append(obj['heading'])
-            #print("BEARING FROM MAPBOX")
-            #print(obj['heading'])
-            #self.heading.append(obj['heading'])
-            #self.distances.append(obj['distance'])
-        #formdata = ''.join(str(self.lats[i]) + "," + str(self.longs[i]) + "|" for i in range(len(self.lats)))
-        #formdata = formdata[:-1] #remove trailing |
         cycletimescum = (np.cumsum(self.cycletimes)).tolist()
         formdata = [{"lat":self.lats[i], "lng":self.longs[i], "cycletimes":self.cycletimes[i], "cycletimescum":cycletimescum[i], "bearingsFromMapbox":self.bearingsFromMapbox[i]} for i in range(len(self.lats))] #for google API
-        #self.getHeights()
         return formdata, 201
 
     def getHeights(self):
@@ -210,10 +206,9 @@ class Trajectory(Resource):
         #print("Scraped the heights")
 
 class Energy(Resource):
-    energies = {}
     def __init__(self):
-        from libraries import trajectory as tr
         from libraries import cyclist as cl
+        from libraries import trajectory as tr
         import MySQLdb
         import os
         exists = os.path.isfile("data.db")
@@ -222,7 +217,7 @@ class Energy(Resource):
         if not exists:
             print("no database: code one")
             #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
-
+        self.init = 0
         self.tr = tr.traject()
         self.cl = cl.cyclist()
         global houres
@@ -232,15 +227,28 @@ class Energy(Resource):
         return json.dumps(self.energies)
 
     def post(self):
+        from scipy import spatial
+        import numpy as np
+        global position
+        print("POSITION")
+        print(position)
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         data_raw = request.get_json(force=True)
         self.tr.heights = data_raw["heights"]
         self.tr.longitudes = data_raw["lngs"]
         self.tr.latitudes = data_raw["lats"]
+        dist_to_start = np.linalg.norm(np.array(position) - np.array([self.tr.latitudes[0], self.tr.longitudes[0]]))
+        #find the index of the nearest knot
+        dist, index = spatial.KDTree([[x,y] for x,y in zip(self.tr.latitudes, self.tr.longitudes)]).query(position)
+        self.tr.heights = data_raw["heights"][index:]
+        self.tr.longitudes = data_raw["lngs"][index:]
+        self.tr.latitudes = data_raw["lats"][index:]
+        print(dist)
+        print(index)
         #print("BEARINGS FROM MAPBOX")
         #print(data_raw["bearingsFromMapbox"])
-        self.tr.bearingsFromMapbox = data_raw["bearingsFromMapbox"]
-        self.tr.cycletimes = data_raw["cycletimes"]
+        self.tr.bearingsFromMapbox = data_raw["bearingsFromMapbox"][index:]
+        self.tr.cycletimes = data_raw["cycletimes"][index:]
         self.tr.cycletimescum = (np.cumsum(self.tr.cycletimes)).tolist()
         self.tr.get_distances()
         self.tr.get_compass_bearing()
@@ -248,25 +256,33 @@ class Energy(Resource):
         self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
         a = self.cursor.fetchall()
         ID = int(a[0][0])
-        self.cursor.execute("SELECT v_cyclist FROM user_settings WHERE ID = "+str(ID)+";")
-        v_cyclist = int(self.cursor.fetchall()[0][0])
-        print("SNELHEID BRAM")
-        print(v_cyclist)
+        self.cursor.execute("SELECT gps_speed FROM measurements WHERE ID = "+str(ID)+";")
+        res = self.cursor.fetchall()
+        res = [v[0] for v in res if v[0] > 0]
+        #select cyclist average velocity if this can be defined, otherwise get from database.
+        if (index == 0 and len(res) > 60*60):
+            v_cyclist = np.mean(res)
+        elif (len(res) > 60*5 and index is not 0): #mean of last 5 minutes cycling
+            v_cyclist = np.mean(res)
+        else:
+            self.cursor.execute("SELECT v_cyclist FROM user_settings WHERE ID = "+str(ID)+";")
+            v_cyclist = int(self.cursor.fetchall()[0][0])
         self.energies = self.cl.cycle_traject_cv(trajectory = self.tr, cv=v_cyclist)
-        self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
-        a = self.cursor.fetchall()
-        ID = int(a[0][0])
-        self.cursor.execute("SELECT MAX(traject_ID) FROM eBike.user_settings WHERE ID = "+str(ID)+";")
-        a = self.cursor.fetchall()
-        traject_ID = int(a[0][0]) + 1
-        self.cursor.execute("UPDATE eBike.user_settings SET traject_ID = "+str(traject_ID)+" WHERE ID = "+str(ID)+";")
-        self.db.commit()
-        temp = self.tr.avg_slopes
-        temp.append(0)
-        for lat, lng, heading, height, slope in zip(self.tr.latitudes, self.tr.longitudes, self.tr.bearingsFromMapbox, self.tr.heights, temp):
-            self.cursor.execute("INSERT INTO eBike.predictions (`ID`, `traject_ID`, `latitude`, `longitude`, `heading`, `height`, `slope`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(lat)+" ,"+str(lng)+", "+str(heading)+", "+str(height)+", "+str(slope)+");")
-        self.db.commit()
-
+        if (self.init == 0): #only store data on initial routing
+            self.init = 1
+            self.cursor.execute("SELECT last_user_ID FROM eBike.global_settings")
+            a = self.cursor.fetchall()
+            ID = int(a[0][0])
+            self.cursor.execute("SELECT MAX(traject_ID) FROM eBike.user_settings WHERE ID = "+str(ID)+";")
+            a = self.cursor.fetchall()
+            traject_ID = int(a[0][0]) + 1
+            self.cursor.execute("UPDATE eBike.user_settings SET traject_ID = "+str(traject_ID)+" WHERE ID = "+str(ID)+";")
+            self.db.commit()
+            temp = self.tr.avg_slopes
+            temp.append(0)
+            for lat, lng, heading, height, slope in zip(self.tr.latitudes, self.tr.longitudes, self.tr.bearingsFromMapbox, self.tr.heights, temp):
+                self.cursor.execute("INSERT INTO eBike.predictions (`ID`, `traject_ID`, `latitude`, `longitude`, `heading`, `height`, `slope`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(lat)+" ,"+str(lng)+", "+str(heading)+", "+str(height)+", "+str(slope)+");")
+            self.db.commit()
         return json.dumps(self.energies), 201
 
 class Settings(Resource):

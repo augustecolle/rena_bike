@@ -27,20 +27,20 @@
       $http({method: "GET", url: "https://api.wunderground.com/api/" + apikey + "/hourly10day/q/" + $rootScope.latitude + "," + $rootScope.longitude + ".json"})
         .then(function successCallback(response) {
           $rootScope.weather = response["data"];
-          console.log(location.hostname);
-          console.log(response);
+          //console.log(location.hostname);
+          //console.log(response);
           var url = "https://"+location.hostname+":5000/Weather"
           $http.post(url, $rootScope.weather).
             then(function(data, status, headers, config) {
               $http.get("https://"+location.hostname+":5000/Weather").
                 then(function(response) {
                   $rootScope.treated_weather = response.data;
-                  console.log(response.data);
-                  console.log("Treated data");
+                  //console.log(response.data);
+                  //console.log("Treated data");
                 }, function errorCallback(response){
                   console.log("Error on treating data");  
                 });
-              console.log("Wheater post");
+              //console.log("Wheater post");
             }, function(data, status, headers, config) {
               console.log("weather error");
             });
@@ -101,6 +101,7 @@
 
   app.controller("mapCtrl", function($rootScope, $scope, $geolocation, $http, $sce){
     $rootScope.hidden = 0;
+    $rootScope.tabs = [false, false, false, false];
     //closeNav();
     autoResizeDiv($rootScope);
   });
@@ -151,7 +152,7 @@
       $http.get("https://"+location.hostname+":5000/Settings")
           .then(function(response) {
             $scope.userdata = JSON.parse(response.data);
-            console.log($scope.userdata);
+            //console.log($scope.userdata);
             $scope.update();
       }, function errorCallback(response){
         console.log("ERROR in settings request, did you initialize the flask server??");
@@ -184,7 +185,7 @@
       var url = "https://"+location.hostname+":5000/globalSettings";
       $http.post(url, $rootScope.ID).
         then(function(data, status, headers, config) {
-          console.log("posted settings");
+          //console.log("posted settings");
         }, function(data, status, headers, config) {
           console.log("ERROR IN SENDING USER SETTINGS TO DB");
         });
@@ -192,7 +193,7 @@
 
     //create new profile 
     $scope.newPr = function(){
-      console.log("new profile");
+      //console.log("new profile");
       $scope.name = null;
       $scope.profileText = "Edit";
       $scope.newProfile = true;
@@ -241,7 +242,7 @@
       dict[$scope.name] = [$scope.ID, $scope.weight, $scope.length, $scope.cr, $scope.cda, $scope.v_cyclist]
       $http.post(url, dict).
         then(function(data, status, headers, config) {
-          console.log("posted settings");
+          //console.log("posted settings");
         }, function(data, status, headers, config) {
           console.log("ERROR IN SENDING USER SETTINGS TO DB");
         });
