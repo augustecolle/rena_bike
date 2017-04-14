@@ -8,11 +8,15 @@ import mechanize
 import socket
 import numpy as np
 
+#import send_email
+
 app = Flask(__name__)
 api = Api(app)
 
 global houres
 houres = None
+global dist_to_end
+dist_to_end = None
 
 position = []
 
@@ -72,7 +76,12 @@ class Position(Resource):
         return 201
 
     def get(self):
-        return json.dumps(self.data_raw)
+        global dist_to_end
+        if (dist_to_end is not None and dist_to_end < 0.001):
+            dist_to_end = None
+            return 1
+        else:
+            return 0
 
 class Weather(Resource):
     from libraries import weather as wh
@@ -235,11 +244,21 @@ class Energy(Resource):
         #self.data_raw = json.dumps(request.get_json(force=True)[0]).encode('utf8')
         data_raw = request.get_json(force=True)
         self.tr.heights = data_raw["heights"]
+        print("heights")
+        print(self.tr.heights)
         self.tr.longitudes = data_raw["lngs"]
         self.tr.latitudes = data_raw["lats"]
         dist_to_start = np.linalg.norm(np.array(position) - np.array([self.tr.latitudes[0], self.tr.longitudes[0]]))
+        global dist_to_end
+        dist_to_end = np.linalg.norm(np.array(position) - np.array([self.tr.latitudes[-1], self.tr.longitudes[-1]]))
         #find the index of the nearest knot
         dist, index = spatial.KDTree([[x,y] for x,y in zip(self.tr.latitudes, self.tr.longitudes)]).query(position)
+        # only update if the nearest knot is close enough
+        if (dist > 0.002):
+            index = 0
+        if (index == len(self.tr.heights)-1):
+            index = index - 1
+            print("adjusted index")
         self.tr.heights = data_raw["heights"][index:]
         self.tr.longitudes = data_raw["lngs"][index:]
         self.tr.latitudes = data_raw["lats"][index:]
@@ -309,7 +328,6 @@ class Settings(Resource):
 
     def post(self): #Save a new profile
         data_raw = request.get_json(force=True)
-        print(data_raw)
         self.cursor.execute("SELECT ID FROM eBike.user_settings")
         a = self.cursor.fetchall()
         if (int(data_raw.values()[0][0]) in [x[0] for x in a]):

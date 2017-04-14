@@ -60,7 +60,27 @@ function mapbox($http, $rootScope, $sce, $interval){
         map.setCenter([pos.lng, pos.lat]);
         $rootScope.latitude = position.coords.latitude;
         $rootScope.longitude = position.coords.longitude;
-        $rootScope.getWeather();
+        var callb = function(){
+          var urlll = "https://"+location.hostname+":5000/Position";
+          var parameter = {
+            "gps_timestamp" : Date.now(),
+            "gps_lat" : position.coords.latitude,
+            "gps_lng" : position.coords.longitude,
+            "gps_alt" : position.coords.altitude,
+            "gps_pos_acc" : position.coords.accuracy,
+            "gps_alt_acc" : position.coords.altitudeAccuracy,
+            "gps_speed" : position.coords.speed,
+            "gps_heading" : position.coords.heading
+          };
+          console.log(parameter);
+          $http.post(urlll, parameter).
+            then(function(data, status, headers, config) {
+              //console.log("posted postion");
+            }, function(data, status, headers, config) {
+                console.log("Error");
+            });
+        };
+        $rootScope.getWeather(callb);
         //$rootScope.startWeatherWatch(1); //weather get interval in minutes
         
       }, function(error){
@@ -70,7 +90,7 @@ function mapbox($http, $rootScope, $sce, $interval){
 
       startPositionWatch = function(){
         urll = "https://"+location.hostname+":5000/Position";
-        postionIndicator = navigator.geolocation.watchPosition(function(position) {
+        $rootScope.positionIndicator = navigator.geolocation.watchPosition(function(position) {
         var parameter = {
           "gps_timestamp" : Date.now(),
           "gps_lat" : position.coords.latitude,
@@ -191,10 +211,30 @@ function mapbox($http, $rootScope, $sce, $interval){
           console.log("Error");
       });
   };
-  $interval(updateEnergies, 1000*60*5); //recalculate energies every 5 minutes (in [ms])
+  var clearPosWatch = function(){
+    //poll if the destination is reached
+    url = "https://"+location.hostname+":5000/Position"
+    $http.get(url).
+      then(function(data, status, headers, config){
+        console.log(data.data);
+        if (data.data){
+          navigator.geolocation.clearWatch($rootScope.positionIndicator);
+          console.log("REACHED DESTINATION")
+          $rootScope.routed_flag = 0;
+        }
+      }, function(data, status, headers, config) {
+        console.log("Error in get position");
+      });
+  };
 
+  if ($rootScope.routed_flag == 1){
+    console.log("Already routing");
+  } else {
+    $interval(updateEnergies, 1000*60*5); //recalculate energies every 5 minutes (in [ms])
+    $interval(clearPosWatch, 1000*5); //check every 5 seconds if destination is reached
+    $rootScope.routed_flag = 1;
+  };
 	});
-
 	//change rider figure to zoom level
 	map.on('zoomend', function() {
 		var currentZoom = map.getZoom();

@@ -15,14 +15,19 @@
     $rootScope.treated_weather = {};
     $rootScope.bearingsFromMapbox = [];
     $rootScope.hidden = 0;
+    $rootScope.routed_flag = 0;
     $rootScope.tabs = [false, false, false, false];
+    //var updateScreen = function(){
+    //  autoResizeDiv($rootScope);
+    //};
+    //$interval(updateScreen, 1000);
     autoResizeDiv($rootScope);
     mapbox($http, $rootScope, $sce, $interval);
     window.onresize = function(){
-      autoResizeDiv($rootScope);
+      //autoResizeDiv($rootScope);
     }
 
-    $rootScope.getWeather = function() {
+    $rootScope.getWeather = function(callb) {
       apikey = "2b26e3479da80130";
       $http({method: "GET", url: "https://api.wunderground.com/api/" + apikey + "/hourly10day/q/" + $rootScope.latitude + "," + $rootScope.longitude + ".json"})
         .then(function successCallback(response) {
@@ -35,6 +40,7 @@
               $http.get("https://"+location.hostname+":5000/Weather").
                 then(function(response) {
                   $rootScope.treated_weather = response.data;
+                  callb();
                   //console.log(response.data);
                   //console.log("Treated data");
                 }, function errorCallback(response){

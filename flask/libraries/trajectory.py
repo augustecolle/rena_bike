@@ -127,7 +127,6 @@ class traject(object):
         if deltax == None: deltax = self.deltax
         #we need difference in height for two points since we want the slope between these points
         height_diff = np.array([(self.heights[x] - self.heights[x-1]) for x in range(1, len(self.heights))]) 
-        print(height_diff)
         slopes = [y/x for y,x in zip(height_diff, self.distances)] #calculate slope
         #print(max(slopes), min(slopes)) #check maxima
         cum_distances = np.cumsum(self.distances)

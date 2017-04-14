@@ -11,11 +11,12 @@ function getAbsoluteHeight(el) {
 
 //if(navigator.userAgent.indexOf("Firefox")<0) alert("Only Firefox is supported!");
 
+
 function autoResizeDiv($rootScope){
   //console.log("resizing");
   if (document.getElementById("mapAng")) {
     document.getElementById("mapAng").style.height = window.innerHeight - document.getElementById('header').offsetHeight + 'px';
-    //console.log("resized mapAng");
+    console.log("resized mapAng");
   } else if ($rootScope.tabs[0]) {
     //console.log("graph1");
     var w = window,
@@ -269,7 +270,4 @@ function closeNav() {
   document.getElementById("main").style.marginLeft = "0";
   //document.getElementById("main").style.backgroundColor = "white";
 };
-
-
-
 
