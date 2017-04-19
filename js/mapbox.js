@@ -86,7 +86,7 @@ function mapbox($http, $rootScope, $sce, $interval){
       }, function(error){
         console.log("Error loading position: " + error);
         console.log(error);
-      }, {timeout:60000});
+      }, {enableHighAccuracy: true, timeout:60000});
 
       startPositionWatch = function(){
         urll = "https://"+location.hostname+":5000/Position";

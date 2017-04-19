@@ -5,12 +5,12 @@ import csv
 db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
 cursor = db.cursor()
 
-cursor.execute("SELECT * FROM eBike.measurements;")
+cursor.execute("SELECT * FROM eBike.measurements WHERE traject_ID = 173;")
 a = cursor.fetchall()
-lats = [x[2] for x in a]
-longs = [x[3] for x in a]
-accuracies = [x[5] for x in a]
-speeds = [x[7] for x in a]
+lats = [x[4] for x in a]
+longs = [x[5] for x in a]
+accuracies = [x[7] for x in a]
+speeds = [x[9] for x in a]
 
 with open('measured.csv', 'wb') as csvfile:
     csv_writer = csv.writer(csvfile, delimiter=' ')
@@ -18,16 +18,16 @@ with open('measured.csv', 'wb') as csvfile:
         csv_writer.writerow([lat,lng,acc,speed])
 
 
-cursor.execute("SELECT * FROM eBike.predictions;")
-a = cursor.fetchall()
-lats = [x[3] for x in a]
-longs = [x[4] for x in a]
-
-with open('predicted.csv', 'wb') as csvfile:
-    csv_writer = csv.writer(csvfile, delimiter=' ')
-    for lat,lng in zip(lats, longs):
-        csv_writer.writerow([lat,lng])
-
+#cursor.execute("SELECT * FROM eBike.predictions;")
+#a = cursor.fetchall()
+#lats = [x[3] for x in a]
+#longs = [x[4] for x in a]
+#
+#with open('predicted.csv', 'wb') as csvfile:
+#    csv_writer = csv.writer(csvfile, delimiter=' ')
+#    for lat,lng in zip(lats, longs):
+#        csv_writer.writerow([lat,lng])
+#
 
 
 

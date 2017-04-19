@@ -7,6 +7,23 @@ import re
 import mechanize
 import socket
 import numpy as np
+from ABE_ADCPi import ADCPi
+from ABE_helpers import ABEHelpers
+
+def i2c(address):
+    address = 0x6e
+    i2c_helper = ABEHelpers()
+    bus = i2c_helper.get_smbus()
+    adc = ADCPi(bus, address, rate=18)
+    return bus, adc
+
+def getAI(address, channel = 1):
+    bus, adc = i2c(address)
+    return adc.read_voltage(channel)
+
+def setPGA(address, gain):
+    bus, adc = i2c(address)
+    adc.set_pga(gain)
 
 #import send_email
 
@@ -28,6 +45,7 @@ class Position(Resource):
         import urllib2
         import ssl
         import json
+        import socket
         exists = os.path.isfile("data.db")
         self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
         self.cursor = self.db.cursor()
@@ -36,10 +54,11 @@ class Position(Resource):
             #self.cursor.execute("CREATE TABLE profiles (name text, frictionCoef text, dragCoef text, velocityAv real)")
 
         #for self signed certificate problems evasion see http://stackoverflow.com/questions/19268548/python-ignore-certicate-validation-urllib2
+        global ip
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
-        temp = urllib2.urlopen("https://10.128.16.14:5000/Weather", context=ctx)
+        temp = urllib2.urlopen("https://"+ip+":5000/Weather", context=ctx)
         temp = temp.readlines()
         temp = json.loads(temp[0])
         self.sky = temp['plotdata'][0]['data']
@@ -53,6 +72,10 @@ class Position(Resource):
 
     def post(self):
         import time as tm
+        bat_current = getAI(0x6e, 2)
+        print(bat_current)
+        bat_voltage = getAI(0x6e, 1)
+        print(bat_voltage)
         now = np.round(tm.time())
         idx = np.searchsorted(self.times, now, side="left")
         if idx > 0 and (idx == len(self.times) or math.fabs(now - self.times[idx-1]) < math.fabs(now - self.times[idx])):
@@ -63,13 +86,17 @@ class Position(Resource):
         a = self.cursor.fetchall()
         ID = int(a[0][0])
         self.data_raw = request.get_json(force=True)
+        print("OKE")
         for (key, value) in self.data_raw.iteritems():
             if (value == None):
                 self.data_raw[key] = -1
+        print("OKE")
         self.cursor.execute("SELECT MAX(traject_ID) FROM eBike.user_settings WHERE ID = "+str(ID)+";")
         a = self.cursor.fetchall()
         traject_ID = a[0][0]
-        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `traject_ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `clearness_index`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", -1, -1,"+str(self.windspeed[idx]/3.6)+", "+str(self.winddir[idx])+", "+str(self.sky[idx])+");")
+        print("OKE")
+        self.cursor.execute("INSERT INTO eBike.measurements (`ID`, `traject_ID`, `timestamp`, `gps_lat`, `gps_lng`, `gps_alt`, `gps_pos_acc`, `gps_alt_acc`, `gps_speed`, `gps_heading`, `battery_current`, `battery_voltage`, `wind_speed`, `wind_heading`, `clearness_index`) VALUES ("+str(ID)+", "+str(traject_ID)+", "+str(self.data_raw['gps_timestamp'])+", "+str(self.data_raw['gps_lat'])+" ,"+str(self.data_raw['gps_lng'])+" ,"+str(self.data_raw['gps_alt'])+" ,"+str(self.data_raw['gps_pos_acc'])+" ,"+str(self.data_raw['gps_alt_acc'])+" ,"+str(self.data_raw['gps_speed'])+" ,"+str(self.data_raw['gps_heading'])+", "+str(bat_current)+", "+str(bat_voltage)+", "+str(self.windspeed[idx]/3.6)+", "+str(self.winddir[idx])+", "+str(self.sky[idx])+");")
+        print("OKE")
         self.db.commit()
         global position
         position = [self.data_raw['gps_lat'], self.data_raw['gps_lng']]
@@ -414,6 +441,7 @@ def set_allow_origin(resp):
 
 
 if __name__ == "__main__":
+    global ip
     ip = [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1] #str([l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0])
     context = ('/etc/apache2/ssl/apache.crt', '/etc/apache2/ssl/apache.key')
     app.run(debug=False, host=ip, ssl_context=context, port=5000, threaded=True)
