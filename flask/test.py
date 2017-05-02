@@ -1,26 +1,37 @@
-from ABE_ADCPi import ADCPi
-from ABE_helpers import ABEHelpers
-import time
-
-def i2c(address):
-    address = 0x6e
-    i2c_helper = ABEHelpers()
-    bus = i2c_helper.get_smbus()
-    adc = ADCPi(bus, address, rate=18)
-    return bus, adc
-
-def getAI(address, channel = 1):
-    bus, adc = i2c(address)
-    return adc.read_voltage(channel)
-
-def setPGA(address, gain):
-    bus, adc = i2c(address)
-    adc.set_pga(gain)
+import MySQLdb
+import csv
 
 
-while (True):
-    current = getAI(0x6e, 2)
-    print(current)
-    voltage = getAI(0x6e, 1)
-    print(voltage)
-    time.sleep(0.3)
+db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
+cursor = db.cursor()
+
+cursor.execute("SELECT * FROM eBike.predictions WHERE traject_ID = 26;")
+a = cursor.fetchall()
+#lats = [x[4] for x in a]
+#longs = [x[5] for x in a]
+#accuracies = [x[7] for x in a]
+#speeds = [x[9] for x in a]
+
+lats = [x[3] for x in a]
+longs = [x[4] for x in a]
+
+
+with open('measured.csv', 'wb') as csvfile:
+    csv_writer = csv.writer(csvfile, delimiter=' ')
+    for lat,lng in zip(lats, longs):
+        csv_writer.writerow([lat,lng])
+
+
+#cursor.execute("SELECT * FROM eBike.predictions;")
+#a = cursor.fetchall()
+#lats = [x[3] for x in a]
+#longs = [x[4] for x in a]
+#
+#with open('predicted.csv', 'wb') as csvfile:
+#    csv_writer = csv.writer(csvfile, delimiter=' ')
+#    for lat,lng in zip(lats, longs):
+#        csv_writer.writerow([lat,lng])
+#
+
+
+
