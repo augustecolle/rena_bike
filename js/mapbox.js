@@ -13,6 +13,8 @@ function mapbox($http, $rootScope, $sce, $interval){
     center: [3.7174, 51.0543]
   });
 
+  $rootScope.map = map;
+
   var directions = new MapboxDirections({
     accessToken: mapboxgl.accessToken,
     unit: 'metric', // Use the metric system to display distances.
@@ -111,6 +113,7 @@ function mapbox($http, $rootScope, $sce, $interval){
           $rootScope.latitude = position.coords.latitude;
           $rootScope.longitude = position.coords.longitude;
           $rootScope.accuracy = position.coords.accuracy; //in meters
+          map.setCenter([position.coords.longitude, position.coords.latitude]);
           //console.log($rootScope.accuracy);
 
         }, function(error){

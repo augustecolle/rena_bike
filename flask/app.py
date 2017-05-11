@@ -25,7 +25,7 @@ def setPGA(address, gain):
     bus, adc = i2c(address)
     adc.set_pga(gain)
 
-#import send_email
+import send_email
 
 app = Flask(__name__)
 api = Api(app)
@@ -46,6 +46,8 @@ class Position(Resource):
         import ssl
         import json
         import socket
+        #import re
+        #import serial
         exists = os.path.isfile("data.db")
         self.db = MySQLdb.connect("localhost", "python_user", "test", "eBike")
         self.cursor = self.db.cursor()
@@ -70,12 +72,31 @@ class Position(Resource):
         self.acc = 0
         self.data_raw = 0
 
+        #self.ser=serial.Serial(
+        #    port='/dev/serial0',
+        #    baudrate=9600,
+        #    parity=serial.PARITY_NONE,
+        #    stopbits=serial.STOPBITS_ONE,
+        #    bytesize=serial.EIGHTBITS,
+        #    timeout=1
+        #)
+
     def post(self):
         import time as tm
         bat_current = getAI(0x6e, 2)
         print(bat_current)
         bat_voltage = getAI(0x6e, 1)
         print(bat_voltage)
+
+        #x=self.ser.readline()
+        #print("raw x")
+        #print(x)
+        #x = [float(i) for i in re.findall(r"[-+]?\d*\.\d+|\d+", x)]
+        #if (len(x) == 13):
+        #    print(x)
+        #    self.ser.flushInput()
+        #    self.ser.flushOutput()
+
         now = np.round(tm.time())
         idx = np.searchsorted(self.times, now, side="left")
         if idx > 0 and (idx == len(self.times) or math.fabs(now - self.times[idx-1]) < math.fabs(now - self.times[idx])):
