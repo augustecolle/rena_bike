@@ -107,7 +107,8 @@ function mapbox($http, $rootScope, $sce, $interval){
           then(function(data, status, headers, config) {
             //console.log("posted postion");
           }, function(data, status, headers, config) {
-              console.log("Error");
+            alert('Failed to post position, maybe flask server is down?');
+            console.log("Error");
           });
           rider.setLngLat([position.coords.longitude, position.coords.latitude]);
           $rootScope.latitude = position.coords.latitude;
@@ -175,7 +176,8 @@ function mapbox($http, $rootScope, $sce, $interval){
                        "heights" : $rootScope.routeHeights,
                        "cycletimes" : $rootScope.cycletimes,
                        "weather" : $rootScope.weather["hourly_forecast"],
-                       "bearingsFromMapbox": $rootScope.bearingsFromMapbox
+                       "bearingsFromMapbox": $rootScope.bearingsFromMapbox,
+                       "newRoute":1
                       };
           $http.post(url, param).
             then(function(data, status, headers, config){
@@ -202,7 +204,8 @@ function mapbox($http, $rootScope, $sce, $interval){
                    "heights" : $rootScope.routeHeights,
                    "cycletimes" : $rootScope.cycletimes,
                    "weather" : $rootScope.weather["hourly_forecast"],
-                   "bearingsFromMapbox": $rootScope.bearingsFromMapbox
+                   "bearingsFromMapbox": $rootScope.bearingsFromMapbox,
+                   "newRoute": 0
                   };
       $http.post(url, param).
         then(function(data, status, headers, config){
