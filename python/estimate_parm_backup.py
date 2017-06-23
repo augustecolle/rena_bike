@@ -1,6 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+sys.path.append('/home/auguste/eBike/Auguste/python/')
 from vector import *
+import MySQLdb
+import matplotlib.pyplot as plt
+
+
+#prediction database:
+#index ID traject_ID latitude longitude heading height slope
 
 class Traject:
     def __init__(self, coords):
@@ -114,9 +122,14 @@ class Traject:
             x.plot()
 
 class Segment:
-    def __init__(self, p0, p1):
-        self.p0 = p0
-        self.p1 = p1
+    def __init__(self, pr0, pr1):
+        '''pr is a prediction, a dictionary containing lat, lng, heading, height and slope'''
+        self.p0 = (pr0.lat, pr0.lng)
+        self.p1 = (pr1.lat, pr1.lng)
+        self.slope = pr0.slope
+        self.height0 = pr0.height
+        self.height1 = pr1.height
+        self.heading = pr0.heading
         self.color = np.random.rand(3,1)
         self.measurements = []
 
@@ -140,31 +153,131 @@ class Segment:
             return self.p0
         else:
             return "index error"
- 
+
 
 class Measurement:
-    def __init__(self, time, lat, lng):
+    def __init__(self, time, lat, lng, alt=None, posacc=None, altacc=None, speed=None, heading=None, amps=None, volts=None, windspeed=None, windheading=None, ci=None):
         self.time = time
         self.lat = lat
         self.lng = lng
-        self.alt = None
-        self.posacc = None
-        self.altacc = None
-        self.speed = None
-        self.heading = None
-        self.amp = None
-        self.volts = None
-        self.windspeed = None
-        self.windheading = None
-        self.ci = None              #Clearness Index
+        self.alt = alt
+        self.posacc = posacc
+        self.altacc = altacc
+        self.speed = speed
+        self.heading = heading
+        self.amps = amps
+        self.volts = volts
+        self.windspeed = windspeed
+        self.windheading = windheading  #In degrees, North is zero degress
+        self.ci = ci                    #Clearness Index
 
     def __str__(self):
         return str(self.time) + ": " + str(self.lat) + ", " + str(self.lng)
 
-def main(n, num, error):
+def test(n, num, error):
    tra = Traject.fakeTraject(n)
    tra.fakeMeasurements(num, error)
    tra.plotMeasurements()
    tra.plotTraject()
    plt.show()
 
+class DB():
+    def __init__(self):
+        self.db = MySQLdb.connect(host="10.128.16.12",port=3306,user="auguste",passwd="renasolutions",db="eBike")
+        self.cursor = self.db.cursor()
+        self.headerm = []
+        self.headerp = []
+        self.measurements = []
+        self.tindex      = None
+        self.latindex    = None
+        self.lngindex    = None
+        self.altindex    = None
+        self.posaccindex = None
+        self.altaccindex = None
+        self.vindex      = None
+        self.hindex      = None
+        self.bcindex     = None
+        self.bvindex     = None
+        self.wvindex     = None
+        self.whindex     = None
+        self.ciindex     = None
+
+    def getHeaderM(cls):
+        cls.headerm = []
+        tablename = 'measurements'
+        cls.cursor.execute("SHOW COLUMNS FROM "+str(tablename))
+        headerm = cls.cursor.fetchall()
+        for x in headerm:
+            cls.headerm.append(x[0])
+        cls.tindex      = cls.headerm.index('timestamp')
+        cls.latindex    = cls.headerm.index('gps_lat')
+        cls.lngindex    = cls.headerm.index('gps_lng')
+        cls.altindex    = cls.headerm.index('gps_alt')
+        cls.posaccindex = cls.headerm.index('gps_pos_acc')
+        cls.altaccindex = cls.headerm.index('gps_alt_acc')
+        cls.vindex      = cls.headerm.index('gps_speed')
+        cls.hindex      = cls.headerm.index('gps_heading')
+        cls.bcindex     = cls.headerm.index('battery_current')
+        cls.bvindex     = cls.headerm.index('battery_voltage')
+        cls.wvindex     = cls.headerm.index('wind_speed')
+        cls.whindex     = cls.headerm.index('wind_heading')
+        cls.ciindex     = cls.headerm.index('clearness_index')
+        return cls.headerm
+
+    def getHeaderP(cls):
+        cls.headerp = []
+        tablename = 'predictions'
+        cls.cursor.execute("SHOW COLUMNS FROM "+str(tablename))
+        headerp = cls.cursor.fetchall()
+        for x in headerp:
+            cls.headerp.append(x[0])
+        cls.latindexp       = cls.headerp.index('gps_lat')
+        cls.lngindexp       = cls.headerp.index('gps_lng')
+        cls.headingindex    = cls.headerp.index('gps_alt')
+        cls.heightindex     = cls.headerp.index('gps_pos_acc')
+        cls.slopeindex      = cls.headerp.index('gps_alt_acc')
+        return cls.headerp
+
+
+    def getMeasurements(cls, ID=None, traject_ID=None):
+        if (ID == None and traject_ID == None):
+            cls.cursor.execute("SELECT * FROM measurements")
+        elif (traject_ID == None):
+            cls.cursor.execute("SELECT * FROM measurements WHERE ID LIKE '"+str(ID))
+        elif (ID == None):
+            cls.cursor.execute("SELECT * FROM measurements WHERE traject_ID LIKE '"+str(traject_ID))
+        else:
+            cls.cursor.execute("SELECT * FROM measurements WHERE traject_ID LIKE '"+str(traject_ID)+"' AND ID LIKE '"+str(ID)+"'")
+        measurements = cls.cursor.fetchall()
+        for x in measurements:
+            cls.measurements.append(Measurement(x[cls.tindex], x[cls.latindex], x[cls.lngindex], x[cls.altindex], x[cls.posaccindex], x[cls.altaccindex], x[cls.vindex], x[cls.hindex], x[cls.bcindex], x[cls.bvindex], x[cls.wvindex], x[cls.whindex], x[cls.ciindex]))
+        return cls.measurements
+
+    def getTraject(cls):
+        if (ID == None and traject_ID == None):
+            cls.cursor.execute("SELECT * FROM predictions")
+        elif (traject_ID == None):
+            cls.cursor.execute("SELECT * FROM predictions WHERE ID LIKE '"+str(ID))
+        elif (ID == None):
+            cls.cursor.execute("SELECT * FROM predictions WHERE traject_ID LIKE '"+str(traject_ID))
+        else:
+            cls.cursor.execute("SELECT * FROM predictions WHERE traject_ID LIKE '"+str(traject_ID)+"' AND ID LIKE '"+str(ID)+"'")
+        predictions = cls.cursor.fetchall()
+        for x in predictions:
+            cls.predictions.append(Traject(x[cls.latindexp], x[cls.lngindexp], x[cls.headingindex], x[cls.heightindex], x[cls.slopeindex]))
+        return cls.predictions
+
+
+    def plot(cls, name):
+        if name in cls.headerm:
+            cursor.execute("SELECT "+str(name)+" FROM measurements")
+            res = cursor.fetchall()
+            plt.plot(res)
+            return 1
+        return -1
+
+def main():
+    db1 = DB() 
+    header = db1.getHeader('measurements')
+    test = db1.getMeasurements()
+    print(test)

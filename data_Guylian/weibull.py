@@ -22,7 +22,7 @@ plt.rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 ## for Palatino and other serif fonts use:
 #rc('font',**{'family':'serif','serif':['Palatino']})
 plt.rc('text', usetex=True)
-plt.rcParams.update({'font.size': 24})
+plt.rcParams.update({'font.size': 22})
 #------------------------------------------------------------------
 
 
@@ -40,7 +40,9 @@ lam = 1.1
 dist = dweibull(k, 0, lam)
 x = np.linspace(0, 4, 1000)
 
-ax.plot(x, dist.pdf(x), c='black',label=r'Weibull distribution $\left(k=%.1f,\ \lambda=%i\right)$' % (k, lam), linewidth = 3.5)
+ax.plot(x, dist.pdf(x), c='black',label=r'Weibull distribution'
+        "\n"
+        r'$\left(k=%.1f,\ \lambda=%i\right)$' % (k, lam), linewidth = 3)
 
 ax.set_xlim(0, 4)
 ax.set_ylim(0, 0.40)
@@ -50,10 +52,9 @@ ax.set_ylim(0, 0.40)
 #ax.title('Power distribution')
 
 ax.set_xlabel(r'\textbf{Unit power [-]}')
-ax.set_ylabel(r'\textbf{Frequency [-]}')
+ax.set_ylabel(r'\textbf{Probability [-]}')
 
-leg = ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25),
-          ncol=2, fancybox=True, shadow=True, fontsize=24)
+leg = ax.legend(loc='upper right', fancybox=True, shadow=True, fontsize=24)
 
 leg.legendHandles[0]._sizes = [60]
 ax.tick_params(axis='x', which='major', labelsize=22)
@@ -61,4 +62,45 @@ ax.tick_params(axis='y', which='major', labelsize=22)
 
 plt.savefig('weibull.pdf', dpi='300', bbox_inches='tight')
 #plt.show()
+
+plt.cla()
+import matplotlib
+fig = plt.figure(1)
+ax = plt.subplot(111)
+r = matplotlib.patches.Rectangle((.00231, .0), (.02 - .00231), (1./(.02 - .00231)), fill=False, linewidth = 3.0, label = 'Prior $C_r$')
+ax.add_artist(r)
+ax.set_xlim([0, (0.02+0.0023)])
+ax.set_ylim([0, 75])
+
+ax.set_xlabel(r'$\mathbf{C_r}$ [-]}')
+ax.set_ylabel(r'\textbf{Probability [-]}')
+anyArtist = plt.Line2D((0,1),(0,0), color='k', lw = 3.0)
+
+leg = ax.legend([anyArtist], [r'Uniform distribution for $C_r$'], loc='upper center', fancybox=True, shadow=True, fontsize=24)
+
+plt.savefig('Cr.pdf', dpi='300', bbox_inches='tight')
+
+
+plt.cla()
+import matplotlib
+fig = plt.figure(1)
+ax = plt.subplot(111)
+r = matplotlib.patches.Rectangle((0.2, .0), .6, (1./(.8 - .2)), fill=False, linewidth = 3.0, label = 'Prior $CdA$')
+ax.add_artist(r)
+ax.set_xlim([0, 1.])
+ax.set_ylim([0, 2.7])
+
+ax.set_xlabel(r'$\mathbf{C_dA [-]}$')
+ax.set_ylabel(r'\textbf{Probability [-]}')
+anyArtist = plt.Line2D((0,1),(0,0), color='k', lw = 3.0)
+
+leg = ax.legend([anyArtist], [r'Uniform distribution'
+    "\n"
+    r'$C_dA \in \left[0.2, 0.8\right]$'], loc='upper center', fancybox=True, shadow=True, fontsize=24)
+
+for t in leg.texts:
+    t.set_multialignment('center')
+
+plt.savefig('CdA.pdf', dpi='300', bbox_inches='tight')
+
 
